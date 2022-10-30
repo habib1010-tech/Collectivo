@@ -1,0 +1,142 @@
+﻿@page "/vehicules"
+
+@if (Vehicule == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Vehicules (@Vehicule.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddVehicule()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="VehiculeGrid" Count="@countVehicule" Data="@Vehicule" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="VehiculeModel" ColumnWidth="100px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="VehiculeModel" Property="IdVehicule" Title="Vehicule Id" Visible="false">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="VehiculeModel" Property="CodeReference" Title="Reference" Width="200px">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="VehiculeModel" Property="Matricule" Title="Reg. nbr">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="VehiculeModel" Property="LibelleCategorie" Title="Category" Width="120px">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="VehiculeModel" Property="LibelleMarque" Title="Brand">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="VehiculeModel" Property="LibelleModele" Title="Model">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="VehiculeModel" Property="NbrPlaces" Title="Places">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="VehiculeModel" Property="Annee" Title="Year" Width="80px">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="VehiculeModel" Property="Kilometrage" Title="Distance">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="VehiculeModel" Context="Vehicule" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                <Template Context="Vehicule">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditVehicule(Vehicule))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteVehicule(Vehicule))>
+                    </RadzenButton>
+                </Template>
+             
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+
+@code {
+
+
+    int countVehicule = 0;
+    RadzenGrid<VehiculeModel> VehiculeGrid;
+    IList<VehiculeModel> Vehicule;
+    public VehiculeModel VehiculeList { get; set; } = new VehiculeModel();
+    VehiculeModel SelectedVehicule = new VehiculeModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Vehicule = await VehiculeService.ListAll("", "CodeReference", "");
+        countVehicule = Vehicule.Count;
+
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (Vehicule.Contains(SelectedVehicule))
+            {
+                VehiculeService.Delete(SelectedVehicule.IdVehicule);
+                Vehicule.Remove(SelectedVehicule);
+                countVehicule = Vehicule.Count();
+                VehiculeGrid.Reload();
+                StateHasChanged();
+            }
+            else
+            {
+
+                if (SelectedVehicule.CodeReference != null)
+                    VehiculeGrid.CancelEditRow(SelectedVehicule);
+            }
+        }
+    }
+
+        async void AddVehicule()
+        {
+            await DialogService.OpenAsync<Vehicule_Add>("Add new vehicule",
+                new Dictionary<string, object>(),
+                new DialogOptions { Width = "700px", Height = "auto" });
+
+            Vehicule = await VehiculeService.ListAll("", "CodeReference", "");
+            StateHasChanged();
+        }
+
+        async void EditVehicule(VehiculeModel vehicule)
+        {
+            await DialogService.OpenAsync<Vehicule_Edit>("Edit Vehicule :" + vehicule.CodeReference,
+            new Dictionary<string, object> { { "id", vehicule.IdVehicule } },
+            new DialogOptions { Width = "700px", Height = "auto" });
+            
+            Vehicule = await VehiculeService.ListAll("", "CodeReference", "");
+            StateHasChanged();
+        }
+
+    async void DeleteVehicule(VehiculeModel vehicule)
+    {
+        
+        SelectedVehicule = vehicule;
+
+        await DialogService.Confirm($"Do you confirm deletion of vehicule ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    
+    }

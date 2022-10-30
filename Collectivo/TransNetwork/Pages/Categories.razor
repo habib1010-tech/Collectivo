@@ -1,0 +1,194 @@
+﻿@page "/categories"
+@using Radzen.Blazor
+@using TransNetwork.Models
+@using Radzen
+
+@inject ICategorieService CategorieService
+
+
+
+@if (Categorie == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Vehicule Categories (@Categorie.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddCountry()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="CategorieGrid" Count="@countCategorie" Data="@Categorie" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="CategorieModel" ColumnWidth="200px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRowCategorie" RowCreate="@OnCreateRowCategorie" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="CategorieModel" Property="IdCategorie" Title="Categorie Id" Visible="false">
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="CategorieModel" Property="LibelleCategorie" Title="Category Name">
+                <EditTemplate Context="Categorie">
+                    <RadzenTextBox @bind-Value="Categorie.LibelleCategorie" Placeholder="Category" Style="width:100%; display: block" Name="LibelleCategorie" />
+                    <RadzenRequiredValidator Text="Category name is required" Component="LibelleCategorie" Popup="true" />
+                </EditTemplate>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="CategorieModel" Context="Categorie" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="50px">
+
+                <Template Context="Categorie">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowCategorie(Categorie))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowCategorie(Categorie))>
+                    </RadzenButton>
+                </Template>
+                <EditTemplate Context="Categorie">
+                    <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowCategorie(Categorie))">
+                    </RadzenButton>
+                    <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditCategorie(Categorie))">
+                    </RadzenButton>
+                </EditTemplate>
+
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+@code 
+{
+    int countCategorie = 0;
+    RadzenGrid<CategorieModel> CategorieGrid;
+    IList<CategorieModel> Categorie;
+    public CategorieModel CategorieList { get; set; } = new CategorieModel();
+    CategorieModel SelectedCategorie = new CategorieModel();
+
+    bool add = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Categorie = await CategorieService.ListAll("", "LibelleCategorie", "");
+        countCategorie = Categorie.Count;
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+
+    void AddCountry()
+    {
+        if (!add)
+        {
+            return;
+        }
+        add = false;
+        if (countCategorie == 0)
+        {
+            countCategorie = 1;
+        }
+        CategorieGrid.InsertRow(new CategorieModel());
+    }
+
+    protected async void OnCreateRowCategorie(CategorieModel categorie)
+    {
+        int CategorieId = CategorieService.Create(categorie).Result;
+        categorie.IdCategorie = CategorieId;
+        Categorie.Append(categorie);
+
+        Categorie = await CategorieService.ListAll("", "LibelleCategorie", "");
+        countCategorie = Categorie.Count;
+    }
+
+    void EditRowCategorie(CategorieModel categorie)
+    {
+        CategorieGrid.EditRow(categorie);
+    }
+
+
+    void OnUpdateRowCategorie(CategorieModel categorie)
+    {
+        CategorieService.Update(categorie);
+    }
+
+    void SaveRowCategorie(CategorieModel categorie)
+    {
+        add = true;
+
+        if (Categorie.FirstOrDefault(x => x.LibelleCategorie == categorie.LibelleCategorie & x.IdCategorie != categorie.IdCategorie) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Categorie name already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            CategorieGrid.UpdateRow(categorie);
+    }
+
+
+    void CancelEditCategorie(CategorieModel categorie)
+    {
+        add = true;
+        CategorieGrid.CancelEditRow(categorie);
+       
+    }
+
+    async void DeleteRowCategorie(CategorieModel Categorie)
+    {
+        ///*********************************Dialog Delete FK error************************************/
+        //  foreach (GouvernoratModel gouvernorat in Gouvernorat)
+        //  {
+        //      if (gouvernorat.IdCategorie == Categorie.IdCategorie)
+        //      {
+
+        //          await DialogService.OpenAsync<FK_DELETE_ERROR>("ERROR : DELETE  ' " + Categorie.LibelleCategorie + " '",
+        //               new Dictionary<string, object>() { },
+        //               new DialogOptions() { Width = "550px", Height = "210px" });
+        //          return;
+        //      }
+        //  }
+        SelectedCategorie = Categorie;
+
+        await DialogService.Confirm($"Do you confirm deletion of {Categorie.LibelleCategorie} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (Categorie.Contains(SelectedCategorie))
+            {
+                CategorieService.Delete(SelectedCategorie.IdCategorie);
+                Categorie.Remove(SelectedCategorie);
+                countCategorie = Categorie.Count();
+                CategorieGrid.Reload();
+                StateHasChanged();
+            }
+      else
+      {
+
+          if (SelectedCategorie.LibelleCategorie != null)
+              CategorieGrid.CancelEditRow(SelectedCategorie);
+      }
+  }
+
+}
+
+ 
+
+
+}

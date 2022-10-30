@@ -1,0 +1,151 @@
+﻿@page "/activite/{id:int}"
+
+@if (Activites == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">@DriverName Vehicules (@Activites.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddActivity()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="ActiviteGrid" Count="@countActivite" Data="@Activites" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="ActiviteModel" ColumnWidth="100px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="ActiviteModel" Property="IdActivite" Title="Activite Id" Visible="false">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="ActiviteModel" Property="NomConducteur" Title="Driver" Width="200px">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="ActiviteModel" Property="NomVehicule" Title="Vehicule">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="ActiviteModel" Property="DateDebutActivite" Title="Start"  Width="120px">
+                     <Template Context="data">
+                        @if (!data.Active || data.DateFinActivite != null)
+                        {
+                            <span style='color: #d2d2d2'>@data.DateDebutActivite?.ToString("dd/MM/yyyy")</span>
+                        }
+                        @if (data.Active && data.DateFinActivite == null)
+                        {
+                            <span style='color:black'>@data.DateDebutActivite?.ToString("dd/MM/yyyy")</span>
+                        }
+                    </Template>
+             </RadzenGridColumn>
+
+           
+
+            <RadzenGridColumn TItem="ActiviteModel" Context="Activite" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                <Template Context="Activite">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditActivite(Activite))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteActivite(Activite))>
+                    </RadzenButton>
+                </Template>
+             
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    int countActivite = 0;
+    RadzenGrid<ActiviteModel> ActiviteGrid;
+    IList<ActiviteModel> Activites;
+    public ActiviteModel ActiviteList { get; set; } = new ActiviteModel();
+    ActiviteModel SelectedActivite = new ActiviteModel();
+
+    string DriverName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        if (id != 0)
+        {
+            DriverName = ConducteurService.GetById(id).Result.NomConducteur;
+            Activites = await ActiviteService.ListAll("activite.IdConducteur = '" + id + "'", "DateDebutActivite", "DESC");
+            countActivite = Activites.Count;
+        }
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (Activites.Contains(SelectedActivite))
+            {
+                ActiviteService.Delete(SelectedActivite.IdActivite);
+                Activites.Remove(SelectedActivite);
+                countActivite = Activites.Count();
+                ActiviteGrid.Reload();
+                StateHasChanged();
+            }
+            else
+            {
+
+                if (SelectedActivite.IdActivite != null)
+                    ActiviteGrid.CancelEditRow(SelectedActivite);
+            }
+        }
+    }
+
+        async void AddActivity()
+        {
+           // NavigationManager.NavigateTo("Activity_add/" + id);
+
+              await DialogService.OpenAsync<Activity_Add>("Add new activity for: " + DriverName,
+              new Dictionary<string, object>() { { "id",  id  } },
+              new DialogOptions() { Width = "700px", Height = "auto" });
+
+            Activites = await ActiviteService.ListAll("activite.IdConducteur = '" + id + "'", "DateDebutActivite", "DESC");
+            countActivite = Activites.Count;
+            StateHasChanged();
+        }
+
+        async void EditActivite(ActiviteModel Activite)
+        {
+           // NavigationManager.NavigateTo("Activity_edit/" + Activite.IdActivite);
+            await DialogService.OpenAsync<Activity_Edit>("Edit Activite for: " + DriverName,
+            new Dictionary<string, object> { { "id", Activite.IdActivite } },
+            new DialogOptions { Width = "700px", Height = "auto" });
+            
+            Activites = await ActiviteService.ListAll("activite.IdConducteur = '" + id + "'", "DateDebutActivite", "DESC");
+            countActivite = Activites.Count;
+            StateHasChanged();
+        }
+
+    async void DeleteActivite(ActiviteModel Activite)
+    {
+        
+        SelectedActivite = Activite;
+
+        await DialogService.Confirm($"Do you confirm deletion of activity ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    
+    }

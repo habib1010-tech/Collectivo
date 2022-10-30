@@ -1,0 +1,435 @@
+﻿@page "/user_add"
+
+
+<RadzenTemplateForm Data="@UserList" >
+   
+
+    
+            <RadzenCard style="height:60px">
+                 <div class="row" >
+                    <div class="col-md-4">
+                        <h4 class="mb-4">Select User Type</h4>
+                    </div>
+               
+                    <div class="col-md-8">
+                         <RadzenRadioButtonList @bind-Value=@userTypeValue TValue="int?" >
+                            <Items>
+                                <RadzenRadioButtonListItem Text="Driver" Value="1" TValue="int?" />
+                                <RadzenRadioButtonListItem Text="Passenger" Value="2" TValue="int?" />
+                                <RadzenRadioButtonListItem Text="Other" Value="3" TValue="int?" />
+                            </Items>
+                        </RadzenRadioButtonList>
+                    </div>
+                 </div>
+            </RadzenCard>
+       
+
+    <div class="row justify-content-center" style="margin-top: 5px;" >
+        <div class="col-md-12">
+             <div class="row">
+                <div class="col-md-2 align-items-center d-flex">
+                    <RadzenLabel Text="Username" />
+                </div>
+              
+                <div class="col-md-10">
+                    <RadzenTextBox @bind-Value="UserList.NomUtilisateur"  Placeholder="Username" style="width: 100%;" Name="NomUtilisateur">
+                    </RadzenTextBox>
+                </div>
+            </div>
+
+             <div class="row" style="margin-top: 5px;">
+                <div class="align-items-center d-flex col-md-1">
+                    <RadzenLabel Text="Role" />
+                    
+                </div>
+                 <div class="col-md-1 justify-content-end align-items-end d-flex">
+                    <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="border-radius: 5px; margin-bottom: 5px;margin-left: 5px;"  Click=@(args =>
+            AddRole()) />
+                     
+                </div>
+                <div class="col-md-4">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    @bind-Value=@multipleValues Multiple="true" Placeholder="Select..." Data=@Role TextProperty="LibelleRole" ValueProperty="IdRole"
+                    Change=@(args => OnChange(args, "DropDown with multiple selection")) Class="w-100" />
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Code" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.CodeReference"  Placeholder="Code" style="width: 100%;" Name="CodeReference">
+                    </RadzenTextBox>
+                    
+                </div>
+            </div>
+
+
+             <div class="row" >
+                 <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="First name" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.Prenom"  Placeholder="First name" style="width: 100%;" Name="Prenom">
+                    </RadzenTextBox>
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Last name" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.Nom"  Placeholder="Last name" style="width: 100%;" Name="Nom">
+                    </RadzenTextBox>
+                </div>
+            </div>
+
+             <div class="row" style="margin-top: 5px;">
+                 <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Email" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.Email"  Placeholder="Email" style="width: 100%;" Name="Email">
+                    </RadzenTextBox>
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Mobile" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.Mobile"  Placeholder="Mobile" style="width: 100%;" Name="Mobile">
+                    </RadzenTextBox>
+                </div>
+            </div>
+
+             <div class="row" style="margin-top: 5px;">
+                 <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Password" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.MotDePasse"  Placeholder="Password" style="width: 100%;" Name="MotDePasse">
+                    </RadzenTextBox>
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Confirm Password" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox  Placeholder="Password" style="width: 100%;" Name="MotDePasse">
+                    </RadzenTextBox>
+                </div>
+            </div>
+
+
+            <div class="row" style="margin-top: 5px;">
+                 <div class="align-items-center d-flex col-md-1">
+                    <RadzenLabel Text="Civility" />
+                </div>
+                 <div class="col-md-1 justify-content-end align-items-end d-flex">
+                    <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="border-radius: 5px; margin-bottom: 5px;margin-left: 5px;"  Click=@(args =>
+            AddCivility()) />
+                </div>
+                <div class="col-md-4">
+                    <RadzenDropDown @bind-Value="UserList.IdCivilite"  Placeholder="Select civility" Data="@Civilite" style="width: 100%;" TextProperty="LibelleCivilite" ValueProperty="IdCivilite" Name="IdCivilite">
+                    </RadzenDropDown>
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Date of Birth" />
+                </div>
+                <div class="col-md-4">
+                     <RadzenDatePicker @bind-Value="UserList.DateNaissance" DateFormat="MM/dd/yyyy"  Class="w-100" />
+                </div>
+            </div>
+
+             <div class="row" >
+                 <div class="align-items-center d-flex col-md-1">
+                    <RadzenLabel Text="Country" />
+                </div>
+                  <div class="col-md-1 justify-content-end align-items-end d-flex">
+                    <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="border-radius: 5px; margin-bottom: 5px;margin-left: 5px;"  Click=@(args =>
+            AddCountry()) />
+                </div>
+                <div class="col-md-4">
+                    <RadzenDropDown @bind-Value="UserList.IdPays"  Placeholder="Select country" Data="@Pays" style="width: 100%;" TextProperty="LibellePays" ValueProperty="IdPays" Name="IdPays">
+                    </RadzenDropDown>
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Active" />
+                </div>
+                <div class="col-md-4 d-flex align-items-center" >
+                    <RadzenSwitch @bind-Value="UserList.CompteActif" />
+                </div>
+            </div>
+
+             <div class="row" >
+                 <div class="align-items-center d-flex col-md-1">
+                    <RadzenLabel Text="Department" />
+                </div>
+                  <div class="col-md-1 justify-content-end align-items-end d-flex">
+                    <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="border-radius: 5px; margin-bottom: 5px;margin-left: 5px;"  Click=@(args =>
+            AddDepartment()) />
+                </div>
+                <div class="col-md-4">
+                     <RadzenDropDown @bind-Value="UserList.IdGouvernorat" Disabled="UserList.IdPays == 0"  Placeholder="Select department" Data="@Gouvernorat.Where(o => o.IdPays == UserList.IdPays)" style="width: 100%;" TextProperty="LibelleGouvernorat" ValueProperty="IdGouvernorat" Name="IdGouvernorat">
+                    </RadzenDropDown>
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Delegation" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenDropDown @bind-Value="UserList.IdDelegation" Disabled="UserList.IdGouvernorat == 0"  Placeholder="Select delegation" Data="@Delegation.Where(o => o.IdGouvernorat == UserList.IdGouvernorat)" style="width: 100%;" TextProperty="LibelleDelegation" ValueProperty="IdDelegation" Name="IdDelegation">
+                    </RadzenDropDown>
+                </div>
+            </div>
+
+             <div class="row" >
+                 <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Postal Code" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.CodePostal"  Placeholder="Postal Code" style="width: 100%;" Name="CodePostal">
+                    </RadzenTextBox>
+                </div>
+
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="City" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="UserList.Ville"  Placeholder="City" style="width: 100%;" Name="Ville">
+                    </RadzenTextBox>
+                </div>
+            </div>
+           
+
+            <div class="row" style="margin-top: 5px;">
+                <div class="col-md-2 align-items-center d-flex">
+                    <RadzenLabel Text="Address" />
+                </div>
+                <div class="col-md-10">
+                    <RadzenTextArea  @bind-Value="UserList.Adresse"  Placeholder="Address" style="width: 100%;" Name="Adresse"  />
+                </div>
+            </div>
+
+          
+        </div>
+    </div>
+
+     <div class="row justify-content-center" style="margin-top: 10px;">
+        <div class="col-md-12 d-flex align-items-end justify-content-end">
+            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" Click="@(args => Submit(UserList))" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+
+@code {
+    public UtilisateurModel UserList { get; set; } = new UtilisateurModel();
+
+    IList<RoleModel> Role;
+    IList<CiviliteModel> Civilite;
+    IList<PaysModel> Pays;
+    IList<GouvernoratModel> Gouvernorat;
+    IList<DelegationModel> Delegation;
+
+    IEnumerable<int> multipleValues = new int[] {  };
+
+    int? userTypeValue = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Role = await RoleService.ListAll("", "LibelleRole", "");
+        Civilite = await CiviliteService.ListAll("", "LibelleCivilite", "");
+        Pays = await PaysService.ListAll("", "LibellePays", "");
+
+        foreach(RoleModel role in Role)
+        {
+            multipleValues.Append(role.IdRole);
+        }
+
+        if (Pays.Count() == 1)
+        {
+            UserList.IdPays = Pays[0].IdPays;
+
+            Gouvernorat = await GouvernoratService.ListAll("IdPays = " + UserList.IdPays, "LibelleGouvernorat", "");
+            if (Gouvernorat.Count() > 0)
+            {
+                Delegation = await DelegationService.ListAll("IdGouvernorat = " + Gouvernorat[0].IdGouvernorat, "LibelleDelegation", "");
+            }
+
+        }
+    }
+
+    void Submit(UtilisateurModel user)
+    {
+        if(userTypeValue == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please select user type", Duration = 4000 });
+            return;
+        }
+        if (user.NomUtilisateur == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter username", Duration = 4000 });
+            return;
+        }
+        //if (user.IdRole == 0)
+        //{
+        //    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a role", Duration = 4000 });
+        //    return;
+        //}
+        if (user.CodeReference == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter user external code", Duration = 4000 });
+            return;
+        }
+        if (user.Prenom == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter first name", Duration = 4000 });
+            return;
+        }
+        if (user.Nom == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter last name", Duration = 4000 });
+            return;
+        }
+        if (user.Email == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter an email", Duration = 4000 });
+            return;
+        }
+        if (user.Mobile == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a mobile number", Duration = 4000 });
+            return;
+        }
+        if (user.MotDePasse == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a password", Duration = 4000 });
+            return;
+        }
+
+        if (user.DateNaissance == DateTime.MinValue)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid date of birth", Duration = 4000 });
+            return;
+        }
+
+        if(user.IdCivilite == 0)
+        {
+            user.IdCivilite = null;
+        }
+        if(user.IdPays == 0)
+        {
+            user.IdPays = null;
+        }
+        else
+        {
+            if (user.IdPays != null)
+            {
+                user.LibellePays = PaysService.GetById(user.IdPays.Value).Result.LibellePays;
+            }
+        }
+        if(user.IdGouvernorat == 0)
+        {
+            user.IdGouvernorat = null;
+        }
+        else
+        {
+            if(user.IdGouvernorat != null)
+            {
+                user.LibelleGouvrnorat = GouvernoratService.GetById(user.IdGouvernorat.Value).Result.LibelleGouvernorat;
+            }
+        }
+        if(user.IdDelegation == 0)
+        {
+
+            user.IdDelegation = null;
+
+        }
+        else
+        {
+            if (user.IdDelegation != null)
+            {
+                user.LibelleDelegation = DelegationService.GetById(user.IdDelegation.Value).Result.LibelleDelegation;
+            }
+        }
+
+        if (user.Adresse == null)
+        {
+            user.Adresse = user.Ville + " " + user.LibelleDelegation + " " + user.CodePostal + " " + user.LibelleDelegation;
+        }
+
+        int UserId = UtilisateurService.Create(UserList).Result;
+        user.IdUtilisateur = UserId;
+
+        RoleUtilisateurModel userRole = new RoleUtilisateurModel();
+        for(int i=0; i < multipleValues.ToList().Count; i++)
+        {
+            userRole.IdRole = multipleValues.ToList()[i];
+            userRole.IdUtilisateur = UserId;
+            RoleUtilisateurService.Create(userRole);
+        }
+
+        if(userTypeValue == 1)
+        {
+            ConducteurModel driver = new ConducteurModel();
+            driver.IdUtilisateur = UserId;
+            driver.CodeReference = user.CodeReference;
+            driver.NomConducteur = user.Prenom + " " + user.Nom;
+            driver.Mobile = user.Mobile;
+            ConducteurService.Create(driver);
+        }
+
+        else if(userTypeValue == 2)
+        {
+            PassagerModel passenger = new PassagerModel();
+            passenger.IdUtilisateur = UserId;
+            passenger.CodeReference = user.CodeReference;
+            passenger.NomPassager = user.Prenom + " " + user.Nom;
+            passenger.Mobile = user.Mobile;
+            PassagerService.Create(passenger);
+        }
+
+
+        NavigationManager.NavigateTo("utilisateur");
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("utilisateur");
+    }
+
+    void AddRole()
+    {
+        NavigationManager.NavigateTo("roles");
+    }
+
+    void AddCivility()
+    {
+        NavigationManager.NavigateTo("civilities");
+    }
+
+    void AddCountry()
+    {
+        NavigationManager.NavigateTo("countries");
+    }
+
+    void AddDepartment()
+    {
+        NavigationManager.NavigateTo("departments");
+    }
+
+    void OnChange(object value, string name)
+    {
+        if(value == null)
+        {
+            return;
+        }
+        var str = value is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)value) : value;
+        UserList.IdRole = multipleValues.First();
+
+       // console.Log($"{name} value changed to {str}");
+    }
+}

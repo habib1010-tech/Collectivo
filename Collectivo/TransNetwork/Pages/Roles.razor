@@ -1,0 +1,194 @@
+﻿@page "/roles"
+@using Radzen.Blazor
+@using TransNetwork.Models
+@using Radzen
+
+@inject IRoleService RoleService
+
+
+
+@if (Role == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Roles (@Role.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddCountry()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="RoleGrid" Count="@countRole" Data="@Role" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="RoleModel" ColumnWidth="200px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRowRole" RowCreate="@OnCreateRowRole" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="RoleModel" Property="IdRole" Title="Role Id" Visible="false">
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="RoleModel" Property="LibelleRole" Title="Role Name">
+                <EditTemplate Context="Role">
+                    <RadzenTextBox @bind-Value="Role.LibelleRole" Placeholder="Role" Style="width:100%; display: block" Name="LibelleRole" />
+                    <RadzenRequiredValidator Text="Role name is required" Component="LibelleRole" Popup="true" />
+                </EditTemplate>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="RoleModel" Context="Role" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="50px">
+
+                <Template Context="Role">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowRole(Role))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowRole(Role))>
+                    </RadzenButton>
+                </Template>
+                <EditTemplate Context="Role">
+                    <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowRole(Role))">
+                    </RadzenButton>
+                    <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditRole(Role))">
+                    </RadzenButton>
+                </EditTemplate>
+
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+@code 
+{
+    int countRole = 0;
+    RadzenGrid<RoleModel> RoleGrid;
+    IList<RoleModel> Role;
+    public RoleModel RoleList { get; set; } = new RoleModel();
+    RoleModel SelectedRole = new RoleModel();
+
+    bool add = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Role = await RoleService.ListAll("", "LibelleRole", "");
+        countRole = Role.Count;
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+
+    void AddCountry()
+    {
+        if (!add)
+        {
+            return;
+        }
+        add = false;
+        if (countRole == 0)
+        {
+            countRole = 1;
+        }
+        RoleGrid.InsertRow(new RoleModel());
+    }
+
+    protected async void OnCreateRowRole(RoleModel role)
+    {
+        int RoleId = RoleService.Create(role).Result;
+        role.IdRole = RoleId;
+        Role.Append(role);
+
+        Role = await RoleService.ListAll("", "LibelleRole", "");
+        countRole = Role.Count;
+    }
+
+    void EditRowRole(RoleModel role)
+    {
+        RoleGrid.EditRow(role);
+    }
+
+
+    void OnUpdateRowRole(RoleModel role)
+    {
+        RoleService.Update(role);
+    }
+
+    void SaveRowRole(RoleModel role)
+    {
+        add = true;
+
+        if (Role.FirstOrDefault(x => x.LibelleRole == role.LibelleRole & x.IdRole != role.IdRole) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Role name already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            RoleGrid.UpdateRow(role);
+    }
+
+
+    void CancelEditRole(RoleModel role)
+    {
+        add = true;
+        RoleGrid.CancelEditRow(role);
+      
+    }
+
+    async void DeleteRowRole(RoleModel role)
+    {
+        ///*********************************Dialog Delete FK error************************************/
+        //  foreach (GouvernoratModel gouvernorat in Gouvernorat)
+        //  {
+        //      if (gouvernorat.IdRole == Role.IdRole)
+        //      {
+
+        //          await DialogService.OpenAsync<FK_DELETE_ERROR>("ERROR : DELETE  ' " + Role.LibelleRole + " '",
+        //               new Dictionary<string, object>() { },
+        //               new DialogOptions() { Width = "550px", Height = "210px" });
+        //          return;
+        //      }
+        //  }
+        SelectedRole = role;
+
+        await DialogService.Confirm($"Do you confirm deletion of {role.LibelleRole} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (Role.Contains(SelectedRole))
+            {
+                RoleService.Delete(SelectedRole.IdRole);
+                Role.Remove(SelectedRole);
+                countRole = Role.Count();
+                RoleGrid.Reload();
+                StateHasChanged();
+            }
+      else
+      {
+
+          if (SelectedRole.LibelleRole != null)
+              RoleGrid.CancelEditRow(SelectedRole);
+      }
+  }
+
+}
+
+ 
+
+
+}

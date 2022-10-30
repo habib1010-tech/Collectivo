@@ -1,0 +1,8 @@
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.csproj.AssemblyReference.cache
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.GeneratedMSBuildEditorConfig.editorconfig
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.AssemblyInfoInputs.cache
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.AssemblyInfo.cs
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.csproj.CoreCompileInputs.cache
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.MvcApplicationPartsAssemblyInfo.cache
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.RazorAssemblyInfo.cache
+D:\Blazor Projects\TransNetwork\TransNetwork\obj\Release\net6.0\TransNetwork.RazorAssemblyInfo.cs

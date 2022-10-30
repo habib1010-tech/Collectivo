@@ -1,0 +1,53 @@
+﻿@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using TransNetwork
+@using TransNetwork.Shared
+@using Blazored.LocalStorage;
+@using Blazored.SessionStorage;
+
+@using TransNetwork.Data
+@using TransNetwork.Models
+@using TransNetwork.Interfaces
+
+@using Radzen 
+@using Radzen.Blazor
+@using static TransNetwork.Interfaces.Interfaces
+
+
+@inject ExampleService ExampleService
+@inject IJSRuntime JSRuntime
+
+@inject ISessionStorageService SessionStorage
+@inject ILocalStorageService LocalStorage
+
+@inject DialogService DialogService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+
+@inject Encrypt_Decrypt_Data Encrypt_Decrypt_Data
+
+@inject IPaysService PaysService
+@inject IGouvernoratService GouvernoratService
+@inject IDelegationService DelegationService
+
+@inject ICategorieService CategorieService
+@inject IMarqueService MarqueService
+@inject IModeleService ModeleService
+
+@inject ICiviliteService CiviliteService
+
+@inject IRoleService RoleService
+
+@inject IVehiculeService VehiculeService
+
+@inject IRoleUtilisateurService RoleUtilisateurService
+@inject IUtilisateurService UtilisateurService
+@inject IPassagerService PassagerService
+@inject IConducteurService ConducteurService
+@inject IActiviteService ActiviteService

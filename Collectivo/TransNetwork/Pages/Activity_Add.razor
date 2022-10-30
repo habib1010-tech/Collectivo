@@ -1,0 +1,173 @@
+﻿@page "/activity_add/{id:int}"
+
+
+<RadzenTemplateForm Data="@ActiviteList" >
+   
+
+    
+                            <div class="row">
+                                <div class="col-md-2 align-items-center d-flex">
+                                    <RadzenLabel Text="Category" />
+                                </div>
+                                <div class="col-md-4">
+                                    <RadzenDropDown @bind-Value="@vehiculeCategory" AllowClear="true" Placeholder="Vehicule Category"
+                                                    Data=@Categorie TextProperty="LibelleCategorie" ValueProperty="IdCategorie"
+                                                     Style="width:100%;border-radius:10px;height:40px" />
+
+                                </div>
+                                <div class="col-md-2 align-items-center d-flex">
+                                    <RadzenLabel Text="Brand" />
+                                </div>
+                                <div class="col-md-4">
+                                    <RadzenDropDown @bind-Value="@vehiculeBrand" AllowClear="true" Placeholder="Vehicule Brand"
+                                                    Data=@Marque TextProperty="LibelleMarque" ValueProperty="IdMarque"
+                                                     Style="width:100%;border-radius:10px;height:40px" />
+
+                                </div>
+                            </div>
+
+
+                            <div class="row" style="margin-top:10px">
+                                <div class="col-md-2 align-items-center d-flex">
+                                    <RadzenLabel Text="Vehicule" />
+                                    <RadzenLabel Text=" *" Style="color:red" />
+                                </div>
+                                <div class="col-md-10">
+
+                                    <RadzenDropDownDataGrid @bind-Value="ActiviteList.IdVehicule" Placeholder="Vehicule" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" 
+                                                            Data="@Vehicule.Where(u => u.IdCategorie == vehiculeCategory && u.IdMarque == vehiculeBrand)" TextProperty="Matricule" ValueProperty="IdVehicule" AllowFilteringByAllStringColumns="true"
+                                                            Style="width:100%;border-radius:10px;height:40px">
+                                        <Columns>
+                                            <RadzenDropDownDataGridColumn Property="CodeReference" Title="Code" Width="350px" />
+                                            <RadzenDropDownDataGridColumn Property="Matricule" Title="Registration Number" Width="150px" />
+                                            <RadzenDropDownDataGridColumn Property="LibelleCategorie" Title="Category" Width="250px" />
+                                            <RadzenDropDownDataGridColumn Property="LibelleMarque" Title="Brand" Width="100px" />
+                                            <RadzenDropDownDataGridColumn Property="LibelleModele" Title="Model" Width="150px" />
+                                            <RadzenDropDownDataGridColumn Property="NbrPlaces" Title="Places" Width="250px" />
+                                            <RadzenDropDownDataGridColumn Property="Annee" Title="Year" Width="100px" />
+                                            <RadzenDropDownDataGridColumn Property="Kilometrage" Title="Distance" Width="100px" />
+                                        </Columns>
+                                    </RadzenDropDownDataGrid>
+
+                                </div>
+                            </div>
+
+                     
+
+                         <div class="row">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Main activity" />
+                            </div>
+                            <div class="col-md-10">
+                                <RadzenSwitch @bind-Value="ActiviteList.ActivitePrincipale"  Placeholder="Activite Principale" Style="margin-bottom: 10px" Name="ActivitePrincipale">
+                                </RadzenSwitch>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Activity Start Date" />
+                                <RadzenLabel Text=" *" Style="color:red" />
+                            </div>
+                            <div class="col-md-10">
+
+                                <RadzenDatePicker @bind-Value="ActiviteList.DateDebutActivite" DateFormat="d" Placeholder="Activity Start Date" style="width: 100%;border-radius:10px;height:40px" Name="DateDebutActivite">
+                                </RadzenDatePicker>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Activity End Date" />
+                            </div>
+                            <div class="col-md-10">
+                                <RadzenDatePicker @bind-Value="ActiviteList.DateFinActivite" DateFormat="d" AllowClear="true" Placeholder="Activity End Date" style="width: 100%;border-radius:10px;height:40px" Name="Libelle Titre">
+                                </RadzenDatePicker>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Active" />
+                            </div>
+                            <div class="col-md-10">
+                                <RadzenSwitch @bind-Value="ActiviteList.Active" Placeholder="Active" Style="margin-bottom: 10px" Name="Active">
+                                </RadzenSwitch>
+                            </div>
+                        </div>
+
+                        <hr style="height: 1px; color: dimgrey;  background-image: linear-gradient(90deg,rgba(dimgrey, 0),rgba(dimgrey, 1) 50%, rgba(dimgrey, 0) 100%);"/> 
+
+                         <div class="row justify-content-center" style="margin-top: 10px;">
+                            <div class="col-md-12 d-flex align-items-end justify-content-end">
+                                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" Click="@(args => Submit(ActiviteList))" style="border-radius:10px;height:40px" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;border-radius:10px;height:40px" Text="Cancel" Click="@Cancel" />
+                            </div>
+                        </div>
+
+
+  
+</RadzenTemplateForm>
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    public ActiviteModel ActiviteList { get; set; } = new ActiviteModel();
+
+    IList<CategorieModel> Categorie;
+    IList<MarqueModel> Marque;
+    IList<ModeleModel> Modele;
+    IList<VehiculeModel> Vehicule;
+
+    IList<ActiviteModel> Activites;
+
+    int vehiculeCategory;
+    int vehiculeBrand ;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Categorie = await CategorieService.ListAll("", "LibelleCategorie", "");
+        Marque = await MarqueService.ListAll("", "LibelleMarque", "");
+        Modele = await ModeleService.ListAll("", "LibelleModele", "");
+        Vehicule = await VehiculeService.ListAll("", "CodeReference", "");
+
+        Activites = await ActiviteService.ListAll("", "DateDebutActivite", "DESC");
+
+      
+    }
+
+    void Submit(ActiviteModel Activite)
+    {
+        if (Activite.IdVehicule == 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please select a vehicule", Duration = 4000 });
+            return;
+        }
+        if (Activite.DateDebutActivite == DateTime.MinValue)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid start date", Duration = 4000 });
+            return;
+        }
+        Activite.IdConducteur = id;
+
+        if(Activite.ActivitePrincipale)
+        {
+            if (Activites.Any(u => u.IdConducteur.Equals(id) && u.ActivitePrincipale))
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Warning", Detail = "Person can only has one main activity!", Duration = 4000 });
+                return;
+            }
+        }
+
+        ActiviteService.Create(ActiviteList);
+        NavigationManager.NavigateTo("activite/" + id);
+    }
+
+    void Cancel()
+    {
+      NavigationManager.NavigateTo("activite/" + id);
+    }
+
+}
+
+

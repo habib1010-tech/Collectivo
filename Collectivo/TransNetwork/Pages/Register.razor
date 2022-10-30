@@ -1,0 +1,302 @@
+﻿@layout LoginLayout
+
+@page "/register"
+
+@using System;
+@using System.Text.RegularExpressions;
+
+<style>
+    body {
+        background: url("https://wallpaperaccess.com/full/1567736.png") no-repeat center center fixed ;
+/*        background: linear-gradient(217deg, rgba(218,221,226,.8), rgba(218,221,226,0) 70.71%), linear-gradient(127deg, rgba(202,210,85,.8), rgba(202,210,85,0) 70.71%), linear-gradient(216deg, rgba(95,107,119,.8), rgba(95,107,119,0) 70.71%), linear-gradient(336deg, rgba(209,100,5,.8), rgba(209,100,5,0) 70.71%);
+       background: linear-gradient(217deg, rgba(199,217,133,.8), rgba(199,217,133,0) 70.71%), linear-gradient(127deg, rgba(180,180,180,.8), rgba(180,180,180,0) 70.71%), linear-gradient(336deg, rgba(232,244,181,.8), rgba(232,244,181,0) 70.71%);
+       */  height: auto;
+        margin: 0;
+        background-repeat: no-repeat;
+        background-attachment:fixed;
+        animation: gradient 15s ease infinite;
+    }
+
+    .hover-underline-animation {
+  display: inline-block;
+  position: relative;
+  color: #0087ca;
+  cursor:pointer;
+}
+
+.hover-underline-animation:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #0087ca;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+.hover-underline-animation:hover:after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+</style>
+
+
+
+<div class="row" style="margin-top:20%">
+    <div class="col-md-12 d-flex justify-content-center align-items-center">
+        <RadzenLabel Text="Sign up" Style="font-weight:800; font-size: 32px; color: mintcream;"> </RadzenLabel>
+    </div>
+</div>
+
+<div class="row" >
+    <div class="col-md-12 d-flex justify-content-center">
+
+        <RadzenCard Style="background: rgba(255,255,255,0.5);backdrop-filter:blur(15px)">
+               
+                <div class="row" style="margin-top:5%">
+                    <div class="col-md-12">
+                        <RadzenIcon Icon="person" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox @bind-Value="UserList.NomUtilisateur" Placeholder="Username" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="NomUtilisateur">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+                 <div class="row" style="margin-top:10px">
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="account_circle" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  @bind-Value="UserList.Prenom" Placeholder="First name" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Prenom">
+                        </RadzenTextBox>
+                    </div>
+
+                     <div class="col-md-6">
+                        <RadzenIcon Icon="account_circle" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  @bind-Value="UserList.Nom" Placeholder="Last name" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Nom">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+                 <div class="row" style="margin-top:10px">
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="email" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  @bind-Value="UserList.Email" Placeholder="Email" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Email">
+                        </RadzenTextBox>
+                        <RadzenRequiredValidator Component="Email" Text="Email is required" Popup=@popup Style="position: absolute" />
+                        <RadzenEmailValidator Component="Email" Text="Provide a valid email address" Popup=@popup Style="position: absolute" />
+                    </div>
+
+                     <div class="col-md-6">
+                        <RadzenIcon Icon="call" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  @bind-Value="UserList.Mobile" MaxLength="8"  Placeholder="Mobile" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Email">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:10px">
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="lock" style="position: absolute; top: 8px; left: 25px; pointer-events: none; color: grey" />
+                        <RadzenPassword  @bind-Value="UserList.MotDePasse" Placeholder="Password" style="width: 100%; padding-left: 40px; border-radius: 10px; height: 40px " Visible="true" Name="MotDePasse">
+                        </RadzenPassword>
+                    </div>
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="lock" style="position: absolute; top: 8px; left: 25px; pointer-events: none; color: grey" />
+                        <RadzenPassword  @bind-Value="@repeatPass" Placeholder=" Confirm password" style="width: 100%; padding-left: 40px; border-radius: 10px; height: 40px " Visible="true" Name="MotDePasse">
+                        </RadzenPassword>
+                    </div>
+                   
+                </div>
+
+               
+
+                 <div class="row" style="margin-top:12px">
+                    <div class="col-md-12 d-flex align-items-center justify-content-center">
+                        <RadzenButton  Click=@(args =>OnRegister(UserList)) Style="width:100%;color:dimgray;background-color: khaki; border-radius: 10px; font-weight: bolder;" Text="Create account"></RadzenButton>
+                    </div>
+                </div>
+
+                <div class="row" >
+                    <div class="col-md-12 d-flex justify-content-center align-items-center">
+                        <label>
+                            <RadzenLabel Text="Already a member?" Style="font-weight:200; font-size: 11px; color: #0f0f0f;"> </RadzenLabel>
+                                <a  class="hover-underline-animation"  Style="font-weight:400; font-size: 12px;" > Log in</a>
+                           
+                        </label>
+                    </div>
+                </div>
+
+        </RadzenCard>
+
+       
+    </div>
+
+</div>
+
+
+
+
+@code {
+
+
+    public UtilisateurModel UserList { get; set; } = new UtilisateurModel();
+    bool popup;
+
+    string repeatPass;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+    }
+
+
+    public async void OnLogin()
+    {
+
+
+        NavigationManager.NavigateTo("login");
+
+    }
+
+
+    public async void OnRegister(UtilisateurModel user)
+    {
+        if (user.NomUtilisateur == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter username", Duration = 4000 });
+            return;
+        }
+
+        if (user.Prenom == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter first name", Duration = 4000 });
+            return;
+        }
+        if (user.Nom == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter last name", Duration = 4000 });
+            return;
+        }
+        if (user.Email == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter an email", Duration = 4000 });
+            return;
+        }
+        else
+        {
+            if(!IsValidEmail(user.Email))
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid email", Duration = 4000 });
+                return;
+            }
+        }
+
+        if (user.Mobile == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a mobile number", Duration = 4000 });
+            return;
+        }
+        else
+        {
+            var hasMinimum8Chars = new Regex(@".{8,}"); 
+            if (!hasMinimum8Chars.IsMatch(user.Mobile))
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid mobile number", Duration = 4000 });
+                return;
+            }
+        }
+
+        if (user.MotDePasse == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a password", Duration = 4000 });
+            return;
+        }
+        else
+        {
+            if(!IsValidPassword(user.MotDePasse))
+            {
+                return;
+            }
+
+            if(user.MotDePasse != repeatPass)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Passwords should be the same", Duration = 4000 });
+                return;
+            }
+
+        }
+
+
+        user.DateNaissance = DateTime.Now.AddYears(-20);
+        user.CompteActif = true;
+        user.IdRole = 2;
+        user.IdPays = 1;
+
+        int UserId = UtilisateurService.Create(UserList).Result;
+        user.IdUtilisateur = UserId;
+
+        RoleUtilisateurModel userRole = new RoleUtilisateurModel();
+        userRole.IdRole = 2;
+        userRole.IdUtilisateur = UserId;
+        RoleUtilisateurService.Create(userRole);
+
+        PassagerModel passenger = new PassagerModel();
+        passenger.IdUtilisateur = UserId;
+        passenger.CodeReference = "P" + UserId;
+        passenger.NomPassager = user.Prenom + " " + user.Nom;
+        passenger.Mobile = user.Mobile;
+        PassagerService.Create(passenger);
+
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Account has been created successfully", Duration = 4000 });
+
+        NavigationManager.NavigateTo("login");
+    }
+
+     bool IsValidEmail(string email)
+    {
+        var trimmedEmail = email.Trim();
+
+        if (trimmedEmail.EndsWith(".")) {
+            return false; // suggested by @TK-421
+        }
+        try {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == trimmedEmail;
+        }
+        catch {
+            return false;
+        }
+    }
+
+     bool IsValidPassword(string pass)
+    {
+        var hasNumber = new Regex(@"[0-9]+");
+        var hasUpperChar = new Regex(@"[A-Z]+");
+        var hasMinimum8Chars = new Regex(@".{8,}");
+
+        if (!hasNumber.IsMatch(pass))
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Password must contain at least one number", Duration = 4000 });
+            return false;
+        }
+
+         if (!hasUpperChar.IsMatch(pass))
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Password must contain at least one upper case letter", Duration = 4000 });
+            return false;
+        }
+
+         if (!hasMinimum8Chars.IsMatch(pass))
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Password must contain at least 8 characters length", Duration = 4000 });
+            return false;
+        }
+
+        return hasNumber.IsMatch(pass) && hasUpperChar.IsMatch(pass) && hasMinimum8Chars.IsMatch(pass);
+        
+    }
+
+   
+
+}

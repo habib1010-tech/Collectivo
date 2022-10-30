@@ -1,0 +1,124 @@
+﻿@page "/roleUtilisateur"
+
+
+@if (RoleUtilisateurs == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">User Roles (@RoleUtilisateurs.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddRoleUtilisateur()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="RoleUtilisateurGrid" Count="@countRoleUtilisateur" Data="@RoleUtilisateurs" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="RoleUtilisateurModel" ColumnWidth="100px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="RoleUtilisateurModel" Property="IdRoleUtilisateur" Title="RoleUtilisateur Id" Visible="false">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="RoleUtilisateurModel" Property="NomUtilisateur" Title="Username" Width="200px">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="RoleUtilisateurModel" Property="LibelleRole" Title="Role">
+            </RadzenGridColumn>
+
+            
+           
+
+            <RadzenGridColumn TItem="RoleUtilisateurModel" Context="RoleUtilisateur" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                <Template Context="RoleUtilisateur">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRoleUtilisateur(RoleUtilisateur))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRoleUtilisateur(RoleUtilisateur))>
+                    </RadzenButton>
+                </Template>
+             
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+
+@code {
+
+
+    int countRoleUtilisateur = 0;
+    RadzenGrid<RoleUtilisateurModel> RoleUtilisateurGrid;
+    IList<RoleUtilisateurModel> RoleUtilisateurs;
+    public RoleUtilisateurModel RoleUtilisateurList { get; set; } = new RoleUtilisateurModel();
+    RoleUtilisateurModel SelectedRoleUtilisateur = new RoleUtilisateurModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        RoleUtilisateurs = await RoleUtilisateurService.ListAll("", "NomUtilisateur", "");
+        countRoleUtilisateur = RoleUtilisateurs.Count;
+
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (RoleUtilisateurs.Contains(SelectedRoleUtilisateur))
+            {
+                RoleUtilisateurService.Delete(SelectedRoleUtilisateur.IdRole,SelectedRoleUtilisateur.IdUtilisateur);
+                RoleUtilisateurs.Remove(SelectedRoleUtilisateur);
+                countRoleUtilisateur = RoleUtilisateurs.Count();
+                RoleUtilisateurGrid.Reload();
+                StateHasChanged();
+            }
+            else
+            {
+
+                if (SelectedRoleUtilisateur.NomUtilisateur != null)
+                    RoleUtilisateurGrid.CancelEditRow(SelectedRoleUtilisateur);
+            }
+        }
+    }
+
+        async void AddRoleUtilisateur()
+        {
+            NavigationManager.NavigateTo("user_add");
+        }
+
+        async void EditRoleUtilisateur(RoleUtilisateurModel RoleUtilisateur)
+        {
+            //await DialogService.OpenAsync<RoleUtilisateur_Edit>("Edit RoleUtilisateur :" + RoleUtilisateur.CodeReference,
+            //new Dictionary<string, object> { { "id", RoleUtilisateur.IdRoleUtilisateur } },
+            //new DialogOptions { Width = "700px", Height = "auto" });
+            
+            //RoleUtilisateur = await RoleUtilisateurService.ListAll("", "CodeReference", "");
+            //StateHasChanged();
+        }
+
+    async void DeleteRoleUtilisateur(RoleUtilisateurModel RoleUtilisateur)
+    {
+        
+        SelectedRoleUtilisateur = RoleUtilisateur;
+
+        await DialogService.Confirm($"Do you confirm deletion of User role ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    
+    }
+

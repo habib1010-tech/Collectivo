@@ -1,0 +1,116 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">TransNetwork</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu" style="overflow-y: scroll;overflow-x: hidden;max-height:550px;">
+     <ul class="nav flex-column">
+      <li class="nav-item px-3">
+         <NavLink class="nav-link" href="home"
+            Match="NavLinkMatch.All">
+            <span class="oi oi-home" aria-hidden="true">
+            </span> Home
+         </NavLink>
+      </li>
+
+      <li class="nav-item px-3">
+         <NavLink class="nav-link" href="profile">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Profile
+         </NavLink>
+      </li>
+
+      <li class="nav-item px-3">
+         <NavLink class="nav-link" href="countries">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Countries
+         </NavLink>
+      </li>
+
+      <li class="nav-item px-3">
+         <NavLink class="nav-link" href="departments">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Departments
+         </NavLink>
+      </li>
+
+      <li class="nav-item px-3">
+         <NavLink class="nav-link" href="categories">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Veh. Categories
+         </NavLink>
+      </li>
+
+       <li class="nav-item px-3">
+         <NavLink class="nav-link" href="vehiculeBrands">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Veh. Models
+         </NavLink>
+      </li>
+
+      <li class="nav-item px-3">
+         <NavLink class="nav-link" href="civilities">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Civilities
+         </NavLink>
+      </li>
+
+      <li class="nav-item px-3">
+         <NavLink class="nav-link" href="roles">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Roles
+         </NavLink>
+      </li>
+
+       <li class="nav-item px-3">
+         <NavLink class="nav-link" href="vehicules">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Vehicules
+         </NavLink>
+      </li>
+
+       <li class="nav-item px-3">
+         <NavLink class="nav-link" href="roleUtilisateur">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            User Roles
+         </NavLink>
+      </li>
+
+       <li class="nav-item px-3">
+         <NavLink class="nav-link" href="utilisateur">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Users
+         </NavLink>
+      </li>
+
+       <li class="nav-item px-3">
+         <NavLink class="nav-link" href="passager">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Passengers
+         </NavLink>
+      </li>
+
+       <li class="nav-item px-3">
+         <NavLink class="nav-link" href="conducteur">
+            <span class="oi oi-book" aria-hidden="true"></span>
+            Drivers
+         </NavLink>
+      </li>
+   
+   </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = false;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

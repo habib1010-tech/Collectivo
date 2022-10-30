@@ -1,0 +1,312 @@
+﻿@page "/profile"
+
+ <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">My Profile</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            
+        </div>
+ </div>
+
+    <RadzenTabs TabPosition="TabPosition.Left" style="height: 500px;" RenderMode="TabRenderMode.Client" >
+        <Tabs>
+            <RadzenTabsItem Text="Edit Profile">
+             <div class="row justify-content-center" Style=" background-color:white;   position: sticky;    top: 0;    z-index: 5000;padding-top: 10px;">
+                    <div class="col-md-6 d-flex align-items-end justify-content-start" >
+                        <h4 style="font-weight:bold">Edit Profile</h4>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            
+                    </div>
+             </div>
+
+             <div class="row" style="margin-top:2%">
+                    <div class="col-md-12">
+                        <RadzenIcon Icon="person" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  Placeholder="Username" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="NomUtilisateur">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+              <div class="row" style="margin-top:10px">
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="account_circle" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  Placeholder="First name" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Prenom">
+                        </RadzenTextBox>
+                    </div>
+
+                     <div class="col-md-6">
+                        <RadzenIcon Icon="account_circle" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  Placeholder="Last name" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Nom">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+                 <div class="row" style="margin-top:10px">
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="email" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  Placeholder="Email" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Email">
+                        </RadzenTextBox>
+                    </div>
+
+                     <div class="col-md-6">
+                        <RadzenIcon Icon="call" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  Placeholder="Mobile" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Email">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 10px;">
+                
+                     <div class="col-md-6">
+                        <RadzenIcon Icon="man" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenDropDown Value="UserList.IdCivilite" TValue="string" Placeholder="Select civility"  style="width: 100%;padding-left:40px; border-radius:10px;height:40px"  Name="IdCivilite">
+                        </RadzenDropDown>
+                    </div>
+
+                    <div class="col-md-6">
+                         <RadzenDatePicker Value="UserList.DateNaissance" TValue="string" DateFormat="MM/dd/yyyy" style="width: 100%; border-radius:10px;height:40px" Class="w-100" />
+                    </div>
+                </div>
+
+                 <div class="row" style="margin-top: 10px;">
+                
+                <div class="col-md-6">
+                    <RadzenIcon Icon="place" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                         <RadzenDropDown Value="UserList.IdGouvernorat" TValue="string"   Placeholder="Select department"  style="width: 100%;padding-left:40px; border-radius:10px;height:40px"  Name="IdGouvernorat">
+                        </RadzenDropDown>
+                    </div>
+
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="place" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenDropDown Value="UserList.IdDelegation" TValue="string"   Placeholder="Select delegation"  style="width: 100%;padding-left:40px; border-radius:10px;height:40px"  Name="IdDelegation">
+                        </RadzenDropDown>
+                    </div>
+            </div>
+
+             <div class="row" style="margin-top: 10px;">
+                
+                <div class="col-md-6">
+                    <RadzenIcon Icon="my_location" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                    <RadzenTextBox   Placeholder="Postal Code" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="CodePostal">
+                    </RadzenTextBox>
+                </div>
+
+                <div class="col-md-6">
+                    <RadzenIcon Icon="my_location" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                    <RadzenTextBox   Placeholder="City" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Ville">
+                    </RadzenTextBox>
+                </div>
+            </div>
+
+             <div class="row" style="margin-top: 10px;">
+               
+                <div class="col-md-12">
+                    <RadzenTextArea    Placeholder="Address" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="Adresse"  />
+                </div>
+            </div>
+
+             <div class="row" style="margin-top: 10px;">
+                <div class="col-md-12 d-flex align-items-end justify-content-end">
+                    <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" style="border-radius:10px;height:40px" />
+                </div>
+            </div>
+
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="Notifications">
+
+                     <div class="row justify-content-center" Style=" background-color:white;   position: sticky;    top: 0;    z-index: 5000;padding-top: 10px;">
+                        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+                            <h4 style="font-weight:bold">Notifications</h4>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            
+                        </div>
+                 </div>
+                
+
+                  <RadzenCard class="m-3" Style="background-color:khaki">
+                        <div class="row">
+                            <div class="col-md-8 text-truncate">
+                                <div class="row">
+                                    <h5>  <b>LOGIN ALERT</b></h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="2021-12-21 07:45" />
+                            </div>
+                        </div>
+                        <hr style="border: none; background-color: dimgrey; height: 1px; margin: 0.4rem 0;" />
+                        <div class="d-flex flex-row align-items-center">
+                            <div>
+                                <h5 class="mb-0">Login attempted from new IP</h5>
+                                <div style="color: #847a6d;">The system has detected that your account is logged n from an unused IP address.</div>
+                                <div style="font-size: .8em; color: #847a6d;">If this activity is not your own operation, please disable your account and contact us immediately.</div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+
+                    <RadzenCard class="m-3" Style="background-color:khaki">
+                        <div class="row">
+                            <div class="col-md-8 text-truncate">
+                                <div class="row">
+                                    <h5> <b>WINNING CHANCE</b> </h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="2021-12-20 15:57" />
+                            </div>
+                        </div>
+                        <hr style="border: none; background-color: dimgrey; height: 1px; margin: 0.4rem 0;" />
+                        <div class="d-flex flex-row align-items-center">
+                            <div>
+                                <h5 class="mb-0">You have 5 days left to win up to $1.8 million!</h5>
+                                <div style="color: #847a6d;">Time is running out! Join the Futures Grand Tournament today for a chance to win up to $1.8 million. You must show your real trading talent us there are only 5 days left in this competition.</div>
+                                <div style="font-size: .8em; color: #847a6d;">Climb up the ladder and claim all the epic prizes we have prepared for you!</div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+
+                    <RadzenCard class="m-3" Style="background-color:khaki">
+                        <div class="row">
+                            <div class="col-md-8 text-truncate">
+                                <div class="row">
+                                    <h5>  <b>BUY/SELL BITCOIN</b></h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="2021-12-11 13:45" />
+                            </div>
+                        </div>
+                        <hr style="border: none; background-color: dimgrey; height: 1px; margin: 0.4rem 0;" />
+                        <div class="d-flex flex-row align-items-center">
+                            <div>
+                                <h5 class="mb-0">Find out more on how you can amplify your profits!</h5>
+                                <div style="color: #847a6d;">Do you know margn trading can amplify your profits a lot more? Ket difference between spot and margin trading.</div>
+                                <div style="font-size: .8em; color: #847a6d;">Margin trading is being on the price of products, using borrowed money to attempt to amplify profits.</div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+
+                    <RadzenCard class="m-3" Style="background-color:khaki">
+                        <div class="row">
+                            <div class="col-md-8 text-truncate">
+                                <div class="row">
+                                    <h5>  <b>LOGIN ALERT</b></h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="2021-12-21 07:45" />
+                            </div>
+                        </div>
+                        <hr style="border: none; background-color: dimgrey; height: 1px; margin: 0.4rem 0;" />
+                        <div class="d-flex flex-row align-items-center">
+                            <div>
+                                <h5 class="mb-0">Login attempted from new IP</h5>
+                                <div style="color: #847a6d;">The system has detected that your account is logged n from an unused IP address.</div>
+                                <div style="font-size: .8em; color: #847a6d;">If this activity is not your own operation, please disable your account and contact us immediately.</div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+
+                    <RadzenCard class="m-3" Style="background-color:khaki">
+                        <div class="row">
+                            <div class="col-md-8 text-truncate">
+                                <div class="row">
+                                    <h5> <b>WINNING CHANCE</b> </h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="2021-12-20 15:57" />
+                            </div>
+                        </div>
+                        <hr style="border: none; background-color: dimgrey; height: 1px; margin: 0.4rem 0;" />
+                        <div class="d-flex flex-row align-items-center">
+                            <div>
+                                <h5 class="mb-0">You have 5 days left to win up to $1.8 million!</h5>
+                                <div style="color: #847a6d;">Time is running out! Join the Futures Grand Tournament today for a chance to win up to $1.8 million. You must show your real trading talent us there are only 5 days left in this competition.</div>
+                                <div style="font-size: .8em; color: #847a6d;">Climb up the ladder and claim all the epic prizes we have prepared for you!</div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+
+                    <RadzenCard class="m-3" Style="background-color:khaki">
+                        <div class="row">
+                            <div class="col-md-8 text-truncate">
+                                <div class="row">
+                                    <h5>  <b>BUY/SELL BITCOIN</b></h5>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="2021-12-11 13:45" />
+                            </div>
+                        </div>
+                        <hr style="border: none; background-color: dimgrey; height: 1px; margin: 0.4rem 0;" />
+                        <div class="d-flex flex-row align-items-center">
+                            <div>
+                                <h5 class="mb-0">Find out more on how you can amplify your profits!</h5>
+                                <div style="color: #847a6d;">Do you know margn trading can amplify your profits a lot more? Ket difference between spot and margin trading.</div>
+                                <div style="font-size: .8em; color: #847a6d;">Margin trading is being on the price of products, using borrowed money to attempt to amplify profits.</div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="Travels History">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 d-flex align-items-end justify-content-start" >
+                        <h4 style="font-weight:bold">Travels History</h4>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            
+                    </div>
+                 </div>
+            </RadzenTabsItem>
+
+            <RadzenTabsItem Text="Password & Security">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 d-flex align-items-end justify-content-start" >
+                        <h4 style="font-weight:bold">Password & Security</h4>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            
+                    </div>
+                 </div>
+
+                  <div class="row" style="margin-top:2%">
+
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="lock" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox  Placeholder="New password" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="MotDePasse">
+                        </RadzenTextBox>
+                    </div>
+               
+
+                    <div class="col-md-6">
+                        <RadzenIcon Icon="lock" style="position: absolute; top: 8px; left: 25px; pointer-events: none; color: grey" />
+                        <RadzenPassword  Placeholder="Confirm password" style="width: 100%; padding-left: 40px; border-radius: 10px; height: 40px " Visible="true" Name="MotDePasse">
+                        </RadzenPassword>
+                    </div>
+                </div>
+
+                 <div class="row" style="margin-top: 10px;">
+                <div class="col-md-12 d-flex align-items-end justify-content-end">
+                    <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" style="border-radius:10px;height:40px" Click=@(args =>OnLogin()) />
+                </div>
+            </div>
+            </RadzenTabsItem>
+        </Tabs>
+    </RadzenTabs>
+
+@code {
+    public UtilisateurModel UserList { get; set; } = new UtilisateurModel();
+
+
+
+    public async void OnLogin()
+    {
+        NavigationManager.NavigateTo("login");
+    }
+}

@@ -1,0 +1,203 @@
+﻿@page "/countries"
+@using Radzen.Blazor
+@using TransNetwork.Models
+@using Radzen
+
+@inject IPaysService PaysService
+
+
+
+@if (Pays == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Countries (@Pays.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px" Text="Add" Click=@(args =>
+        AddCountry()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="PaysGrid" Count="@countPays" Data="@Pays" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="PaysModel" ColumnWidth="200px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRowPays" RowCreate="@OnCreateRowPays" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="PaysModel" Property="IdPays" Title="Pays Id" Visible="false">
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="PaysModel" Property="LibellePays" Title="Country Name">
+                <EditTemplate Context="pays">
+                    <RadzenTextBox @bind-Value="pays.LibellePays" Placeholder="Country" Style="width:100%; display: block" Name="LibellePays" />
+                    <RadzenRequiredValidator Text="Country name is required" Component="LibellePays" Popup="true" />
+                </EditTemplate>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="PaysModel" Context="pays" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="50px">
+
+                <Template Context="pays">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowPays(pays))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowPays(pays))>
+                    </RadzenButton>
+                </Template>
+                <EditTemplate Context="pays">
+                    <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowPays(pays))">
+                    </RadzenButton>
+                    <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditPays(pays))">
+                    </RadzenButton>
+                </EditTemplate>
+
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+@code 
+{
+    int countPays = 0;
+    RadzenGrid<PaysModel> PaysGrid;
+    IList<PaysModel> Pays;
+    public PaysModel PaysList { get; set; } = new PaysModel();
+    PaysModel SelectedPays = new PaysModel();
+
+    bool add = true;
+
+    IList<GouvernoratModel> Gouvernorat;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Pays = await PaysService.ListAll("", "LibellePays", "");
+        countPays = Pays.Count;
+
+        Gouvernorat = await GouvernoratService.ListAll("" , "LibelleGouvernorat", "");
+
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+
+    void AddCountry()
+    {
+        if (!add)
+        {
+            return;
+        }
+        add = false;
+        if (countPays == 0)
+        {
+            countPays = 1;
+        }
+        PaysGrid.InsertRow(new PaysModel());
+    }
+
+    protected async void OnCreateRowPays(PaysModel pays)
+    {
+        int PaysId = PaysService.Create(pays).Result;
+        pays.IdPays = PaysId;
+        Pays.Append(pays);
+
+        Pays = await PaysService.ListAll("", "LibellePays", "");
+        countPays = Pays.Count;
+    }
+
+    void EditRowPays(PaysModel pays)
+    {
+        PaysGrid.EditRow(pays);
+    }
+
+
+    void OnUpdateRowPays(PaysModel pays)
+    {
+        PaysService.Update(pays);
+    }
+
+    void SaveRowPays(PaysModel pays)
+    {
+        add = true;
+
+        if (Pays.FirstOrDefault(x => x.LibellePays == pays.LibellePays & x.IdPays != pays.IdPays) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Pays name already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            PaysGrid.UpdateRow(pays);
+    }
+
+
+    void CancelEditPays(PaysModel pays)
+    {
+        add = true;
+        PaysGrid.CancelEditRow(pays);
+        //if (pays.LibellePays != null)
+        //{
+        //    Pays[Pays.IndexOf(pays)] = PaysService.GetById(pays.IdPays).Result;
+        //}
+        //PaysGrid.Reload();
+    }
+
+    async void DeleteRowPays(PaysModel pays)
+    {
+        /*********************************Dialog Delete FK error************************************/
+          foreach (GouvernoratModel gouvernorat in Gouvernorat)
+          {
+              if (gouvernorat.IdPays == pays.IdPays)
+              {
+
+                  await DialogService.OpenAsync<FK_DELETE_ERROR>("ERROR : DELETE  ' " + pays.LibellePays + " '",
+                       new Dictionary<string, object>() { },
+                       new DialogOptions() { Width = "550px", Height = "210px" });
+                  return;
+              }
+          }
+        SelectedPays = pays;
+
+        await DialogService.Confirm($"Do you confirm deletion of {pays.LibellePays} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (Pays.Contains(SelectedPays))
+            {
+                PaysService.Delete(SelectedPays.IdPays);
+                Pays.Remove(SelectedPays);
+                countPays = Pays.Count();
+                PaysGrid.Reload();
+                StateHasChanged();
+            }
+      else
+      {
+
+          if (SelectedPays.LibellePays != null)
+              PaysGrid.CancelEditRow(SelectedPays);
+      }
+  }
+
+}
+
+ 
+
+
+}

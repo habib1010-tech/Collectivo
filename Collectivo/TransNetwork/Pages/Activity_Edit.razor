@@ -1,0 +1,144 @@
+﻿@page "/activity_edit/{id:int}"
+
+
+<RadzenTemplateForm Data="@ActiviteList" >
+   
+
+                            <div class="row" style="margin-top:10px">
+                                <div class="col-md-2 align-items-center d-flex">
+                                    <RadzenLabel Text="Vehicule" />
+                                    <RadzenLabel Text=" *" Style="color:red" />
+                                </div>
+                                <div class="col-md-10">
+
+                                    <RadzenTextBox @bind-Value="ActiviteList.NomVehicule" Placeholder="Vehicule" Style="width:100%;border-radius:10px;height:40px" Disabled="true">
+                                       
+                                    </RadzenTextBox>
+
+                                </div>
+                            </div>
+
+                     
+
+                         <div class="row">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Main activity" />
+                            </div>
+                            <div class="col-md-10">
+                                <RadzenSwitch @bind-Value="ActiviteList.ActivitePrincipale"  Placeholder="Activite Principale" Style="margin-bottom: 10px" Name="ActivitePrincipale">
+                                </RadzenSwitch>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Activity Start Date" />
+                                <RadzenLabel Text=" *" Style="color:red" />
+                            </div>
+                            <div class="col-md-10">
+
+                                <RadzenDatePicker @bind-Value="ActiviteList.DateDebutActivite" DateFormat="d" Placeholder="Activity Start Date" style="width: 100%;border-radius:10px;height:40px" Name="DateDebutActivite">
+                                </RadzenDatePicker>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:10px">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Activity End Date" />
+                            </div>
+                            <div class="col-md-10">
+                                <RadzenDatePicker @bind-Value="ActiviteList.DateFinActivite" DateFormat="d" AllowClear="true" Placeholder="Activity End Date" style="width: 100%;border-radius:10px;height:40px" Name="Libelle Titre">
+                                </RadzenDatePicker>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 align-items-center d-flex">
+                                <RadzenLabel Text="Active" />
+                            </div>
+                            <div class="col-md-10">
+                                <RadzenSwitch @bind-Value="ActiviteList.Active" Placeholder="Active" Style="margin-bottom: 10px" Name="Active">
+                                </RadzenSwitch>
+                            </div>
+                        </div>
+                        
+                        <hr style="height: 1px; color: dimgrey;  background-image: linear-gradient(90deg,rgba(dimgrey, 0),rgba(dimgrey, 1) 50%, rgba(dimgrey, 0) 100%);"/> 
+
+                         <div class="row justify-content-center" style="margin-top: 10px;">
+                            <div class="col-md-12 d-flex align-items-end justify-content-end">
+                                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" Click="@(args => Submit(ActiviteList))" style="border-radius:10px;height:40px" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;border-radius:10px;height:40px" Text="Cancel" Click="@Cancel" />
+                            </div>
+                        </div>
+
+
+  
+</RadzenTemplateForm>
+
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    public ActiviteModel ActiviteList { get; set; } = new ActiviteModel();
+
+    IList<CategorieModel> Categorie;
+    IList<MarqueModel> Marque;
+    IList<ModeleModel> Modele;
+    IList<VehiculeModel> Vehicule;
+
+    IList<ActiviteModel> Activites;
+
+    int driverId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Categorie = await CategorieService.ListAll("", "LibelleCategorie", "");
+        Marque = await MarqueService.ListAll("", "LibelleMarque", "");
+        Modele = await ModeleService.ListAll("", "LibelleModele", "");
+        Vehicule = await VehiculeService.ListAll("", "CodeReference", "");
+
+
+
+        if (id != 0)
+        {
+            ActiviteList = ActiviteService.GetById(id).Result;
+
+            Activites = await ActiviteService.ListAll("activite.IdActivite =" + id, "DateDebutActivite", "DESC");
+            ActiviteList.NomVehicule = Activites.First().NomVehicule;
+
+            driverId = ActiviteService.GetById(id).Result.IdConducteur;
+        }
+    }
+
+    void Submit(ActiviteModel Activite)
+    {
+
+        if (Activite.DateDebutActivite == DateTime.MinValue)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid start date", Duration = 4000 });
+            return;
+        }
+        Activite.IdActivite = id;
+        Activite.IdConducteur = ActiviteService.GetById(id).Result.IdConducteur;
+
+        if(Activite.ActivitePrincipale)
+        {
+            Activites.Remove(Activites.Where(u => u.IdActivite == id).First());
+            if (Activites.Any(u => u.IdActivite.Equals(id) && u.ActivitePrincipale))
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Warning", Detail = "Person can only has one main activity!", Duration = 4000 });
+                return;
+            }
+        }
+
+        ActiviteService.Update(ActiviteList);
+        NavigationManager.NavigateTo("activite/" + driverId);
+    }
+
+    void Cancel()
+    {
+      NavigationManager.NavigateTo("activite/" + driverId);
+    }
+
+}
+
+

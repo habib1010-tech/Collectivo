@@ -1,0 +1,130 @@
+﻿@page "/utilisateur"
+
+@if (Utilisateurs == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Utilisateurs (@Utilisateurs.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddUtilisateur()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="UtilisateurGrid" Count="@countUtilisateur" Data="@Utilisateurs" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="UtilisateurModel" ColumnWidth="100px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="UtilisateurModel" Property="IdUtilisateur" Title="Utilisateur Id" Visible="false">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="UtilisateurModel" Property="NomUtilisateur" Title="Username">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="UtilisateurModel" Property="LibelleRole" Title="Role" Width="120px">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="UtilisateurModel" Property="Prenom" Title="1st Name">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="UtilisateurModel" Property="Nom" Title="2nd Name">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="UtilisateurModel" Property="Mobile" Title="Mobile">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="UtilisateurModel" Property="CompteActif" Title="Active" Width="80px">
+            </RadzenGridColumn>
+          
+            <RadzenGridColumn TItem="UtilisateurModel" Context="Utilisateur" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                <Template Context="Utilisateur">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditUtilisateur(Utilisateur))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteUtilisateur(Utilisateur))>
+                    </RadzenButton>
+                </Template>
+             
+
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+
+@code {
+
+
+    int countUtilisateur = 0;
+    RadzenGrid<UtilisateurModel> UtilisateurGrid;
+    IList<UtilisateurModel> Utilisateurs;
+    public UtilisateurModel UtilisateurList { get; set; } = new UtilisateurModel();
+    UtilisateurModel SelectedUtilisateur = new UtilisateurModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Utilisateurs = await UtilisateurService.ListAll("", "NomUtilisateur", "");
+        countUtilisateur = Utilisateurs.Count;
+
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (Utilisateurs.Contains(SelectedUtilisateur))
+            {
+                ConducteurService.Delete(SelectedUtilisateur.IdUtilisateur);
+                RoleUtilisateurService.Delete(SelectedUtilisateur.IdUtilisateur);
+                
+                UtilisateurService.Delete(SelectedUtilisateur.IdUtilisateur);
+                Utilisateurs.Remove(SelectedUtilisateur);
+                countUtilisateur = Utilisateurs.Count();
+                UtilisateurGrid.Reload();
+                StateHasChanged();
+            }
+            else
+            {
+
+                if (SelectedUtilisateur.NomUtilisateur != null)
+                    UtilisateurGrid.CancelEditRow(SelectedUtilisateur);
+            }
+        }
+    }
+
+    async void AddUtilisateur()
+    {
+        NavigationManager.NavigateTo("user_add");
+    }
+
+    async void EditUtilisateur(UtilisateurModel utilisateur)
+    {
+        NavigationManager.NavigateTo("user_edit/" + utilisateur.IdUtilisateur);
+    }
+
+    async void DeleteUtilisateur(UtilisateurModel Utilisateur)
+    {
+        
+        SelectedUtilisateur = Utilisateur;
+
+        await DialogService.Confirm($"Do you confirm deletion of {Utilisateur.NomUtilisateur} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    
+    }

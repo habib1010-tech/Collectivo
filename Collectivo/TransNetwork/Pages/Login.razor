@@ -1,0 +1,159 @@
+﻿@layout LoginLayout
+@page "/"
+@page "/login"
+
+
+
+<style>
+    body {
+        background: url("https://wallpaperaccess.com/full/1567736.png") no-repeat center center fixed ;
+/*        background: linear-gradient(217deg, rgba(218,221,226,.8), rgba(218,221,226,0) 70.71%), linear-gradient(127deg, rgba(202,210,85,.8), rgba(202,210,85,0) 70.71%), linear-gradient(216deg, rgba(95,107,119,.8), rgba(95,107,119,0) 70.71%), linear-gradient(336deg, rgba(209,100,5,.8), rgba(209,100,5,0) 70.71%);
+       background: linear-gradient(217deg, rgba(199,217,133,.8), rgba(199,217,133,0) 70.71%), linear-gradient(127deg, rgba(180,180,180,.8), rgba(180,180,180,0) 70.71%), linear-gradient(336deg, rgba(232,244,181,.8), rgba(232,244,181,0) 70.71%);
+       */  height: auto;
+        margin: 0;
+        background-repeat: no-repeat;
+        background-attachment:fixed;
+        animation: gradient 15s ease infinite;
+    }
+
+    .hover-underline-animation {
+  display: inline-block;
+  position: relative;
+  color: #0087ca;
+  cursor:pointer;
+}
+
+.hover-underline-animation:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #0087ca;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+.hover-underline-animation:hover:after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+</style>
+
+
+
+<div class="row" style="margin-top:30%">
+    <div class="col-md-12 d-flex justify-content-center align-items-center">
+        <RadzenLabel Text="Log in" Style="font-weight:800; font-size: 32px; color: mintcream;"> </RadzenLabel>
+    </div>
+
+</div>
+
+<div class="row" >
+    <div class="col-md-12 d-flex justify-content-center">
+
+        <RadzenCard Style="background: rgba(255,255,255,0.5);backdrop-filter:blur(15px)">
+             <div class="row" style="margin-top:5%">
+
+                    <div class="col-md-12">
+                        <RadzenIcon Icon="person" style="position:absolute;top:8px; left: 25px; pointer-events: none;color:grey;" />
+                        <RadzenTextBox @bind-Value="UserList.NomUtilisateur" Placeholder="Username" style="width: 100%;padding-left:40px; border-radius:10px;height:40px" Name="EMail">
+                        </RadzenTextBox>
+                    </div>
+                </div>
+
+
+                <div class="row" style="margin-top:10px">
+
+                    <div class="col-md-12">
+                        <RadzenIcon Icon="lock" style="position: absolute; top: 8px; left: 25px; pointer-events: none; color: grey" />
+                        <RadzenPassword  @bind-Value="UserList.MotDePasse"  Placeholder="Password" style="width: 100%; padding-left: 40px; border-radius: 10px; height: 40px " Visible="true" Name="MotDePasse">
+                        </RadzenPassword>
+                    </div>
+                </div>
+
+                 <div class="row" style="margin-top:5px">
+                    <div class="col-md-12 d-flex align-items-end justify-content-end">
+                            <RadzenLabel class="hover-underline-animation" Text="Forgot Password" Style="font-weight:400; font-size: 10px;color:mintcream"> </RadzenLabel>
+                    </div>
+                </div>
+
+                 <div class="row" style="margin-top:10px">
+                    <div class="col-md-12 d-flex align-items-center justify-content-center">
+                        <RadzenButton  Click=@(args =>OnLogin()) Style="width:100%;color:dimgray;background-color: khaki; border-radius: 10px; font-weight: bolder;" Text="Login"></RadzenButton>
+                    </div>
+                </div>
+
+                <div class="row" >
+                    <div class="col-md-12 d-flex justify-content-center align-items-center">
+                        <label>
+                            <RadzenLabel Text="Don't have an account yet?" Style="font-weight:200; font-size: 11px; color: #0f0f0f;"> </RadzenLabel>
+                            <label onclick="OnRegister()" class="hover-underline-animation"  Style="font-weight:400; font-size: 12px;"> Sign up</label>
+                        </label>
+                    </div>
+                </div>
+
+        </RadzenCard>
+
+       
+    </div>
+
+</div>
+
+
+
+
+@code {
+    public UtilisateurModel UserList { get; set; } = new UtilisateurModel();
+    IList<UtilisateurModel> Utilisateurs;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Utilisateurs = await UtilisateurService.ListAll("", "NomUtilisateur", "");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await SessionStorage.ClearAsync();
+        await LocalStorage.ClearAsync();
+    }
+
+
+    public async void OnLogin()
+    {
+        if (Utilisateurs.Any(u => u.NomUtilisateur.Equals(UserList.NomUtilisateur) && u.MotDePasse.Equals(UserList.MotDePasse)))
+        {
+            if (Utilisateurs.Any(u => u.NomUtilisateur.Equals(UserList.NomUtilisateur) && u.MotDePasse.Equals(UserList.MotDePasse) && !u.CompteActif))
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Your account is suspended!", Duration = 4000 });
+                return;
+            }
+
+            string UserName = Utilisateurs.First(u => u.NomUtilisateur.Equals(UserList.NomUtilisateur) && u.MotDePasse.Equals(UserList.MotDePasse)).NomUtilisateur;
+            int UserId = Utilisateurs.First(u => u.NomUtilisateur.Equals(UserList.NomUtilisateur) && u.MotDePasse.Equals(UserList.MotDePasse)).IdUtilisateur;
+
+            await SessionStorage.SetItemAsync("UserName", UserName);
+            await SessionStorage.SetItemAsync("UserId", UserId);
+
+            NavigationManager.NavigateTo("home");
+
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid email and password", Duration = 4000 });
+        }
+    }
+
+
+    void OnRegister()
+    {
+        NavigationManager.NavigateTo("register");
+    }
+
+   
+
+}

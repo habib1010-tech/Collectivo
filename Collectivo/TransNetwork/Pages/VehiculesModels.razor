@@ -1,0 +1,396 @@
+﻿@page "/vehiculeBrands"
+@using Radzen.Blazor
+@using TransNetwork.Models
+@using Radzen
+
+
+
+<RadzenCard Style="width: auto; margin-bottom: 20px; height: fit-content; background-color: white" >
+    @if (Marque == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-3 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Vehicule Brands (@Marque.Count)</h3>
+        </div>
+        <div class="col-md-3 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Style="border-radius: 5px; margin-bottom: 5px;" Click=@(args =>
+        AddVehiculeBrand()) />
+        </div>
+          <div class="col-md-6 d-flex align-items-end justify-content-start" >
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <RadzenGrid @ref="MarqueGrid"  AllowFiltering="true" AllowPaging="true" PageSize="12" AllowSorting="true" Data="@Marque" TItem="MarqueModel" SelectionMode="DataGridSelectionMode.Single" RowSelect="SelectVehiculeBrand" RowUpdate="@OnUpdateRowVehiculeBrand" RowCreate="@OnCreateRowVehiculeBrand" 
+            FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single"  style="height: 520px" >
+                <Columns>
+                    <RadzenGridColumn TItem="MarqueModel" Property="LibelleMarque" Title="VehiculeBrand" >
+                        <EditTemplate Context="pays">
+                            <RadzenTextBox @bind-Value="pays.LibelleMarque" Placeholder="Brand" Style="width:100%; display: block" Name="LibelleMarque" />
+                            <RadzenRequiredValidator Text="VehiculeBrand name is required" Component="LibelleMarque" Popup="true" />
+                        </EditTemplate>
+                    </RadzenGridColumn>
+              
+                     <RadzenGridColumn TItem="MarqueModel" Context="pays" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                    <Template Context="pays">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowVehiculeBrand(pays))">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowVehiculeBrand(pays))>
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="pays">
+                        <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowVehiculeBrand(pays))">
+                        </RadzenButton>
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditVehiculeBrand(pays))">
+                        </RadzenButton>
+                    </EditTemplate>
+
+                </RadzenGridColumn>
+                </Columns>
+            </RadzenGrid>
+        </div>
+        <div class="col-md-6">
+            <RadzenCard Style="margin-bottom:20px">
+               <label>  VehiculeBrand:
+                <b>@SelectedMarque.LibelleMarque</b> </label>
+            </RadzenCard>
+           
+             @if (Modele == null || SelectedMarque == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+            <div class="row justify-content-center">
+            <div class="col-md-6 d-flex align-items-end justify-content-start" >
+                <h3 style="font-weight:bold">Modeles (@Modele.Count)</h3>
+            </div>
+            <div class="col-md-6 d-flex align-items-end justify-content-end" >
+                <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Style="border-radius: 5px; margin-bottom: 5px;"  Click=@(args =>
+            AddModele()) />
+            </div>
+        </div>
+
+                        <RadzenGrid @ref="ModeleGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Modele" TItem="ModeleModel" RowUpdate="@OnUpdateRowModele" RowCreate="@OnCreateRowModele" 
+                            FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single">
+                            <Columns>
+                                <RadzenGridColumn TItem="ModeleModel" Property="LibelleModele" Title="Modele" >
+                                      <EditTemplate Context="pays">
+                                        <RadzenTextBox @bind-Value="pays.LibelleModele" Placeholder="Modele" Style="width:100%; display: block" Name="LibelleModele" />
+                                        <RadzenRequiredValidator Text="Modele name is required" Component="LibelleModele" Popup="true" />
+                                    </EditTemplate>
+                                 </RadzenGridColumn>
+                                 <RadzenGridColumn TItem="ModeleModel" Context="pays" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                                <Template Context="pays">
+                                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowModele(pays))">
+                                    </RadzenButton>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowModele(pays))>
+                                    </RadzenButton>
+                                </Template>
+                                <EditTemplate Context="pays">
+                                    <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowModele(pays))">
+                                    </RadzenButton>
+                                    <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditModele(pays))">
+                                    </RadzenButton>
+                                </EditTemplate>
+
+                            </RadzenGridColumn>
+                            </Columns>
+                        </RadzenGrid>
+                    }
+        </div>
+    </div>
+}
+</RadzenCard>
+
+@code {
+
+  
+    int countMarque = 0;
+    RadzenGrid<MarqueModel> MarqueGrid;
+    IList<MarqueModel> Marque;
+    bool addMarque = true;
+    bool VehiculeBrandDeleted = false;
+
+    int countModele = 0;
+    RadzenGrid<ModeleModel> ModeleGrid;
+    IList<ModeleModel> Modele;
+    bool addModele = true;
+    bool ModeleDeleted = false;
+
+    MarqueModel SelectedMarque = new MarqueModel();
+    ModeleModel SelectedModele = new ModeleModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        Marque = await MarqueService.ListAll("", "LibelleMarque", "");
+        if (Marque.Count() > 0)
+        {
+            SelectedMarque = Marque.FirstOrDefault();
+
+            Modele = await ModeleService.ListAll("IdMarque = " + Marque[0].IdMarque, "LibelleModele", "");
+
+        }
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    async void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (VehiculeBrandDeleted)
+            {
+                if (Marque.Contains(SelectedMarque))
+                {
+                    foreach(ModeleModel Modele in Modele)
+                    {
+                        if(Modele.IdMarque == SelectedMarque.IdMarque)
+                        {
+                            ModeleService.Delete(Modele.IdModele);
+                        }
+                    }
+
+                    MarqueService.Delete(SelectedMarque.IdMarque);
+                    Marque.Remove(SelectedMarque);
+                    MarqueGrid.Reload();
+
+                    Marque = await MarqueService.ListAll("", "LibelleMarque", "");
+                    if (Marque.Count() > 0)
+                    {
+                        SelectedMarque = Marque.FirstOrDefault();
+
+                        Modele = await ModeleService.ListAll("IdMarque = " + Marque[0].IdMarque, "LibelleModele", "");
+
+                    }
+                    StateHasChanged();
+                }
+                else
+                {
+                    MarqueGrid.CancelEditRow(SelectedMarque);
+                }
+                VehiculeBrandDeleted = false;
+            }
+
+            if (ModeleDeleted)
+            {
+                if (Modele.Contains(SelectedModele))
+                {
+                    ModeleService.Delete(SelectedModele.IdModele);
+                    Modele.Remove(SelectedModele);
+                    ModeleGrid.Reload();
+                }
+                else
+                {
+                    ModeleGrid.CancelEditRow(SelectedModele);
+                }
+
+                Modele = await ModeleService.ListAll("IdMarque = " + SelectedModele.IdMarque, "LibelleModele", "");
+
+                 StateHasChanged();
+                ModeleDeleted = false;
+            }
+
+
+
+        }
+    }
+
+    async void OnChangeVehiculeBrand(object value, string name)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        else
+        {
+
+            Marque = await MarqueService.ListAll("", "LibelleMarque", "");
+            if (Marque.Count() > 0)
+            {
+                SelectedMarque = Marque[0];
+                Modele = await ModeleService.ListAll("IdMarque = " + Marque[0].IdMarque, "LibelleModele", "");
+
+            }  
+        }
+    }
+
+    async void SelectVehiculeBrand(MarqueModel marque)
+    {
+        SelectedMarque = marque;
+        Modele = await ModeleService.ListAll("IdMarque = " + marque.IdMarque, "LibelleModele", "");
+    }
+
+    void AddVehiculeBrand()
+    {
+        if (!addMarque)
+        {
+            return;
+        }
+        addMarque = false;
+        if (countMarque == 0)
+        {
+            countMarque = 1;
+        }
+        MarqueGrid.InsertRow(new MarqueModel());
+    }
+
+    protected async void OnCreateRowVehiculeBrand(MarqueModel marque)
+    {
+        int MarqueId = MarqueService.Create(marque).Result;
+        marque.IdMarque = MarqueId;
+        Marque.Append(marque);
+
+        Marque = await MarqueService.ListAll("", "LibelleMarque", "");
+        StateHasChanged();
+    }
+
+    void EditRowVehiculeBrand(MarqueModel marque)
+    {
+        MarqueGrid.EditRow(marque);
+    }
+
+
+    void OnUpdateRowVehiculeBrand(MarqueModel marque)
+    {
+        MarqueService.Update(marque);
+    }
+
+    void SaveRowVehiculeBrand(MarqueModel marque)
+    {
+        addMarque = true;
+
+        if (Marque.FirstOrDefault(x => x.LibelleMarque == marque.LibelleMarque & x.IdMarque != marque.IdMarque) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Vehicule Brand already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            MarqueGrid.UpdateRow(marque);
+    }
+
+
+    void CancelEditVehiculeBrand(MarqueModel marque)
+    {
+        addMarque = true;
+        MarqueGrid.CancelEditRow(marque);
+        if (marque.LibelleMarque != null)
+        {
+            Marque[Marque.IndexOf(marque)] = MarqueService.GetById(marque.IdMarque).Result;
+        }
+        MarqueGrid.Reload();
+    }
+
+    async void DeleteRowVehiculeBrand(MarqueModel marque)
+    {
+        SelectedMarque = marque;
+        VehiculeBrandDeleted = true;
+        await DialogService.Confirm($"Do you confirm deletion of {marque.LibelleMarque} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    void AddModele()
+    {
+        if (!addModele)
+        {
+            return;
+        }
+        addModele = false;
+        if (countModele == 0)
+        {
+            countModele = 1;
+        }
+        ModeleGrid.InsertRow(new ModeleModel());
+    }
+
+    protected async void OnCreateRowModele(ModeleModel modele)
+    {
+        modele.IdMarque = SelectedMarque.IdMarque;
+        int ModeleId = ModeleService.Create(modele).Result;
+        modele.IdModele = ModeleId;
+        Modele.Append(modele);
+
+        Modele = await ModeleService.ListAll("IdMarque = " + modele.IdMarque, "LibelleModele", "");
+
+        StateHasChanged();
+    }
+
+    void EditRowModele(ModeleModel modele)
+    {
+        ModeleGrid.EditRow(modele);
+    }
+
+
+    void OnUpdateRowModele(ModeleModel modele)
+    {
+        ModeleService.Update(modele);
+    }
+
+    void SaveRowModele(ModeleModel modele)
+    {
+        addModele = true;
+
+        if (Modele.FirstOrDefault(x => x.LibelleModele == modele.LibelleModele & x.IdModele != modele.IdModele) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Modele already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            ModeleGrid.UpdateRow(modele);
+    }
+
+
+    async void CancelEditModele(ModeleModel modele)
+    {
+        addModele = true;
+        ModeleGrid.CancelEditRow(modele);
+        if (modele.LibelleModele != null)
+        {
+            //Modele[Modele.IndexOf(Modele)] = ModeleService.GetById(Modele.IdModele).Result;
+            Modele = await ModeleService.ListAll("IdMarque = " + SelectedMarque.IdMarque, "LibelleModele", "");
+
+        StateHasChanged();
+        }
+        ModeleGrid.Reload();
+    }
+
+    async void DeleteRowModele(ModeleModel modele)
+    {
+        SelectedModele = modele;
+        ModeleDeleted = true;
+        await DialogService.Confirm($"Do you confirm deletion of {modele.LibelleModele} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+
+
+}

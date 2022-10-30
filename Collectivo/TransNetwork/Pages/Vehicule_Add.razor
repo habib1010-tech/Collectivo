@@ -1,0 +1,191 @@
+﻿@page "/vehicule_add"
+
+<RadzenTemplateForm Data="@VehiculeList" >
+   
+
+    <div class="row justify-content-center" >
+        <div class="col-md-12">
+             <div class="row">
+                <div class="col-md-1 align-items-center d-flex">
+                    <RadzenLabel Text="Category" />
+                     
+                </div>
+                <div class="col-md-1 justify-content-end align-items-end d-flex">
+                    <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="border-radius: 5px; margin-bottom: 5px;margin-left: 5px;"  Click=@(args =>
+            AddCategory()) />
+                     
+                </div>
+                <div class="col-md-10">
+                    
+                    <RadzenDropDown @bind-Value="VehiculeList.IdCategorie"  Placeholder="Select category" Data="@Categorie" style="width: 100%;" TextProperty="LibelleCategorie" ValueProperty="IdCategorie" Name="IdCategorie">
+                    </RadzenDropDown>
+                   
+                </div>
+            </div>
+
+             <div class="row" >
+                <div class="align-items-center d-flex col-md-1">
+                    <RadzenLabel Text="Brand" />
+                    
+                </div>
+                 <div class="col-md-1 justify-content-end align-items-end d-flex">
+                    <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="border-radius: 5px; margin-bottom: 5px;margin-left: 5px;"  Click=@(args =>
+            AddModel()) />
+                     
+                </div>
+                <div class="col-md-4">
+                    
+                    <RadzenDropDown @bind-Value="VehiculeList.IdMarque"  Placeholder="Select brand" Data="@Marque" style="width: 100%;" TextProperty="LibelleMarque" ValueProperty="IdMarque" Name="IdMarque">
+                    </RadzenDropDown>
+                </div>
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Model" />
+                    
+                </div>
+                <div class="col-md-4">
+                    <RadzenDropDown @bind-Value="VehiculeList.IdModele" Disabled="VehiculeList.IdMarque == 0"  Placeholder="Select model" Data="@Modele.Where(o => o.IdMarque == VehiculeList.IdMarque)" style="width: 100%;" TextProperty="LibelleModele" ValueProperty="IdModele" Name="IdModele">
+                    </RadzenDropDown>
+                    
+                </div>
+            </div>
+
+            <div class="row" >
+                <div class="col-md-2 align-items-center d-flex">
+                    <RadzenLabel Text="Places" />
+                </div>
+                <div class="col-md-10">
+                    <RadzenNumeric @bind-Value="VehiculeList.NbrPlaces"  Placeholder="Places" style="width: 100%;" Name="NbrPlaces"  />
+                </div>
+            </div>
+
+             <div class="row"  style="margin-top: 5px;">
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Reference" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenTextBox @bind-Value="VehiculeList.CodeReference" Placeholder="Reference" style="width: 100%;" Name="CodeReference" />
+                </div>
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Reg. Nbr" />
+                </div>
+                <div class="col-md-4">
+                     <RadzenTextBox @bind-Value="VehiculeList.Matricule" Placeholder="Reg. Nbr" style="width: 100%;" Name="Matricule" />
+                </div>
+            </div>
+
+
+            <div class="row" style="margin-top: 5px;" >
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Year" />
+                </div>
+                <div class="col-md-4">
+                     <RadzenNumeric @bind-Value="VehiculeList.Annee"  Placeholder="Year" style="width: 100%;" Name="Kilometrage"  />
+               </div>
+                <div class="align-items-center d-flex col-md-2">
+                    <RadzenLabel Text="Distance" />
+                </div>
+                <div class="col-md-4">
+                     <RadzenNumeric @bind-Value="VehiculeList.Kilometrage" Min="0" Max="1000000" Step="1000" Placeholder="Distance" style="width: 100%;" Name="Kilometrage"  />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr style="height: 1px; color: dimgrey;  background-image: linear-gradient(90deg,rgba(dimgrey, 0),rgba(dimgrey, 1) 50%, rgba(dimgrey, 0) 100%);"/> 
+
+     <div class="row justify-content-center" style="margin-top: 10px;">
+        <div class="col-md-12 d-flex align-items-end justify-content-end">
+            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" Click="@(args => Submit(VehiculeList))" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Cancel" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+
+@code {
+    public VehiculeModel VehiculeList { get; set; } = new VehiculeModel();
+
+    IList<CategorieModel> Categorie;
+    IList<MarqueModel> Marque;
+    IList<ModeleModel> Modele;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Categorie = await CategorieService.ListAll("", "LibelleCategorie", "");
+        Marque = await MarqueService.ListAll("", "LibelleMarque", "");
+        Modele = await ModeleService.ListAll("", "LibelleModele", "");
+    }
+
+    void Submit(VehiculeModel vehicule)
+    {
+        if (vehicule.IdCategorie == 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a category", Duration = 4000 });
+            return;
+        }
+        if (vehicule.IdCategorie == 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a brand", Duration = 4000 });
+            return;
+        }
+        if (vehicule.IdCategorie == 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a model", Duration = 4000 });
+            return;
+        }
+        if (vehicule.NbrPlaces <= 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid places number", Duration = 4000 });
+            return;
+        }
+        if (vehicule.CodeReference == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a reference code", Duration = 4000 });
+            return;
+        }
+        if (vehicule.Matricule == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a registration number", Duration = 4000 });
+            return;
+        }
+        if (vehicule.Annee == 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid year", Duration = 4000 });
+            return;
+        }
+        else
+        {
+            if (vehicule.Annee < 1900 || vehicule.Annee > 9999 )
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid year", Duration = 4000 });
+                return;
+            } 
+        }
+        if (vehicule.Kilometrage < 0)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please enter a valid distance", Duration = 4000 });
+            return;
+        }
+
+        VehiculeService.Create(VehiculeList);
+        NavigationManager.NavigateTo("vehicules");
+    }
+
+    void Cancel()
+    {
+      NavigationManager.NavigateTo("vehicules");
+    }
+
+    void AddCategory()
+    {
+      NavigationManager.NavigateTo("categories");
+    }
+
+    void AddModel()
+    {
+      NavigationManager.NavigateTo("vehiculeBrands");
+    }
+
+   
+}

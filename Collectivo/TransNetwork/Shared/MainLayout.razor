@@ -1,0 +1,227 @@
+﻿@inherits LayoutComponentBase
+
+<RadzenDialog />
+<RadzenNotification />
+<RadzenTooltip />
+
+<style>
+    body {
+        background:no-repeat center center fixed;
+        background-color: #fcf9f5 ;
+/*        background: linear-gradient(217deg, rgba(218,221,226,.8), rgba(218,221,226,0) 70.71%), linear-gradient(127deg, rgba(202,210,85,.8), rgba(202,210,85,0) 70.71%), linear-gradient(216deg, rgba(95,107,119,.8), rgba(95,107,119,0) 70.71%), linear-gradient(336deg, rgba(209,100,5,.8), rgba(209,100,5,0) 70.71%);
+       background: linear-gradient(217deg, rgba(199,217,133,.8), rgba(199,217,133,0) 70.71%), linear-gradient(127deg, rgba(180,180,180,.8), rgba(180,180,180,0) 70.71%), linear-gradient(336deg, rgba(232,244,181,.8), rgba(232,244,181,0) 70.71%);
+       */  height: auto;
+        margin: 0;
+        background-repeat: no-repeat;
+        background-attachment:fixed;
+        animation: gradient 15s ease infinite;
+    }
+
+</style>
+
+@*<PageTitle>TransNetwork</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <a href="/login" >Logout</a>
+        </div>
+        
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>*@
+
+
+@if (examples == null)
+{
+   
+   @* <SplashScreen></SplashScreen>*@
+
+}
+else
+{
+    <RadzenHeader>
+        <ChildContent>
+
+            <nav class="navbar" style="padding-top: 0rem;padding-bottom: 0rem;background-color:white">
+                <RadzenSidebarToggle Click="@(args => { sidebarExpanded = !sidebarExpanded; bodyExpanded = !bodyExpanded; })" Style="background-color:white"></RadzenSidebarToggle>
+@*                <RadzenImage Path="images/LogoCannyForce.png" Click=@(args => HomePage()) Style="width:200px; height:34px;margin-right:5%;cursor:pointer" />
+*@                <div class="links" >
+                    <RadzenMenu Responsive="true" Style="flex-wrap: wrap; z-index: 1;background-color:white " >
+                        <RadzenMenuItem Text="Home" Icon="home" Path="home" Style="font-size:12px"/>
+                        <RadzenMenuItem Text="@userName" Icon="account_circle" Style="font-size:12px">
+                            <RadzenMenuItem Text="Profile" Path="profile" Icon="account_circle" Style="font-size:12px"></RadzenMenuItem>
+                            <RadzenMenuItem Text="Notifications" Path="NotificationsList" Icon="notifications" Style="font-size:12px"></RadzenMenuItem>
+                            <RadzenMenuItem Text="Logout" Path="logout" Icon="logout" Style="font-size:12px"></RadzenMenuItem>
+                        </RadzenMenuItem>
+                        
+                        <RadzenMenuItem Icon="notifications" Text="Notifications" Path="NotificationsList" Style="font-size:12px">  </RadzenMenuItem>
+                        <RadzenMenuItem Icon="info" Text="Support" Style="font-size:12px"></RadzenMenuItem>
+
+                    </RadzenMenu>
+                </div>
+            </nav>
+
+        </ChildContent>
+    </RadzenHeader>
+    <div style="height:100%; width:100%;">
+        <RadzenBody @ref="@body0"  @bind-Expanded="@bodyExpanded">
+            <ChildContent>
+                <RadzenContentContainer Name="main">
+                    @Body
+                </RadzenContentContainer>
+            </ChildContent>
+        </RadzenBody>
+    </div>
+    <RadzenSidebar  @ref="@sidebar0" @bind-Expanded="@sidebarExpanded">
+        @*<RadzenSidebar @ref="@sidebar0" @bind-Expanded="@sidebarExpanded" Style="height:contain">*@
+        <ChildContent>
+            <div style="padding-top: 10px;padding-left: 10px; position: sticky;    top: 0;    z-index: 5000;">
+                <RadzenTextBox Placeholder="Find component ..." type="search" @oninput="@FilterPanelMenu" style="width: 100%" />
+            </div>
+            <RadzenPanelMenu>
+                @foreach (var category in examples)
+                {
+                    <RadzenPanelMenuItem @bind-Expanded="@category.Expanded" Text="@category.Name" Path="@category.Path" Icon="@category.Icon" Style="font-weight:600;color:white;" >
+
+                        @if (category.Children != null)
+                        {
+                            @foreach (var example in category.Children)
+                            {
+                                if (example.Children != null)
+                                {
+                                    <RadzenPanelMenuItem Text="@example.Name" @bind-Expanded="@example.Expanded" Icon="@example.Icon" >
+                                        @foreach (var child in example.Children)
+                                        {
+                                            <RadzenPanelMenuItem Text="@child.Name" Path="@child.Path" />
+                                        }
+                                    </RadzenPanelMenuItem>
+
+                                }
+                                else
+                                {
+                                    <RadzenPanelMenuItem Text="@example.Name" Path="@example.Path" Icon="@example.Icon"  />
+                                }
+                            }
+                        }
+                    </RadzenPanelMenuItem>
+                }
+            </RadzenPanelMenu>
+        </ChildContent>
+    </RadzenSidebar>
+    <RadzenFooter Style="background-color:white">
+        <ChildContent>
+            @*<RadzenImage Path="images/logo_alidade.jpg" Style="width:110px; height:40px"/>*@
+            <div class="row">
+                <div class="col-md-6  d-flex align-items-end justify-content-start">
+                    <RadzenLabel Text="&copy; 2021 ALIDADE. All Rights Reserved." Style="font-weight:400; color:dimgray;font-size:small" />
+                </div>
+                <div class="col-md-6  d-flex align-items-end justify-content-end">
+                    @*<Social />*@
+                </div>
+            </div>
+
+        </ChildContent>
+    </RadzenFooter>
+}
+
+@code {
+    string userId;
+    string userName = "Profile";
+    string email = "";
+    string role = "";
+
+    RadzenSidebar sidebar0;
+    RadzenBody body0;
+    //bool sidebarExpanded = true;
+    //bool bodyExpanded = false;
+
+
+    bool sidebarExpanded = false;
+    bool bodyExpanded = true;
+    bool ShowChatPanel = false;
+
+
+    // Override this so we can start the user idle timer on load on the first render of the main page
+    //
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+
+        await LoadStateAsync();
+        StateHasChanged();
+        userName = await SessionStorage.GetItemAsync<string>("UserName");
+        email = await SessionStorage.GetItemAsync<string>("Email");
+
+    }
+
+    private async Task LoadStateAsync()
+    {
+        userId = await SessionStorage.GetItemAsync<string>("UserId");
+        role = await SessionStorage.GetItemAsync<string>("Role");
+
+
+        if (userId == null)
+        {
+            NavigationManager.NavigateTo("login");
+            return;
+        }
+    }
+
+
+    dynamic themes = new[]
+{
+        new { Text = "Default", Value = "default"},
+        new { Text = "Dark", Value="dark" },
+        new { Text = "Software", Value = "software"},
+        new { Text = "Humanistic", Value = "humanistic" }
+    };
+
+    IEnumerable<Example> examples;
+    IEnumerable<Example> originExamples;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+
+        await Task.Delay(50);
+        examples = ExampleService.Examples;
+        
+
+        originExamples = examples;
+        // System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+    }
+   
+
+    void FilterPanelMenu(ChangeEventArgs args)
+    {
+        var term = args.Value.ToString();
+
+        examples = ExampleService.Filter(term);
+
+        if (term == "")
+            examples = originExamples;
+    }
+
+    void HomePage()
+    {
+        NavigationManager.NavigateTo("home");
+    }
+
+    //public Task<string> GetUserId()
+    //{
+    //    //return Task.FromResult(sessionStorage.GetItemAsync<string>("UserId").ToString());
+    //}
+
+}

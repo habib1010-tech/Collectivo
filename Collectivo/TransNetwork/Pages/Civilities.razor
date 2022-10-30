@@ -1,0 +1,194 @@
+﻿@page "/civilities"
+@using Radzen.Blazor
+@using TransNetwork.Models
+@using Radzen
+
+@inject ICiviliteService CiviliteService
+
+
+
+@if (Civilite == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Civilites (@Civilite.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary"  Text="Add" Click=@(args =>
+        AddCountry()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="CiviliteGrid" Count="@countCivilite" Data="@Civilite" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="CiviliteModel" ColumnWidth="200px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRowCivilite" RowCreate="@OnCreateRowCivilite" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="CiviliteModel" Property="IdCivilite" Title="Civilite Id" Visible="false">
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="CiviliteModel" Property="LibelleCivilite" Title="Civility">
+                <EditTemplate Context="Civilite">
+                    <RadzenTextBox @bind-Value="Civilite.LibelleCivilite" Placeholder="Civility" Style="width:100%; display: block" Name="LibelleCivilite" />
+                    <RadzenRequiredValidator Text="Civility is required" Component="LibelleCivilite" Popup="true" />
+                </EditTemplate>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="CiviliteModel" Context="Civilite" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="50px">
+
+                <Template Context="Civilite">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowCivilite(Civilite))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowCivilite(Civilite))>
+                    </RadzenButton>
+                </Template>
+                <EditTemplate Context="Civilite">
+                    <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowCivilite(Civilite))">
+                    </RadzenButton>
+                    <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditCivilite(Civilite))">
+                    </RadzenButton>
+                </EditTemplate>
+
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+@code 
+{
+    int countCivilite = 0;
+    RadzenGrid<CiviliteModel> CiviliteGrid;
+    IList<CiviliteModel> Civilite;
+    public CiviliteModel CiviliteList { get; set; } = new CiviliteModel();
+    CiviliteModel SelectedCivilite = new CiviliteModel();
+
+    bool add = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Civilite = await CiviliteService.ListAll("", "LibelleCivilite", "");
+        countCivilite = Civilite.Count;
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+
+    void AddCountry()
+    {
+        if (!add)
+        {
+            return;
+        }
+        add = false;
+        if (countCivilite == 0)
+        {
+            countCivilite = 1;
+        }
+        CiviliteGrid.InsertRow(new CiviliteModel());
+    }
+
+    protected async void OnCreateRowCivilite(CiviliteModel civilite)
+    {
+        int CiviliteId = CiviliteService.Create(civilite).Result;
+        civilite.IdCivilite = CiviliteId;
+        Civilite.Append(civilite);
+
+        Civilite = await CiviliteService.ListAll("", "LibelleCivilite", "");
+        countCivilite = Civilite.Count;
+    }
+
+    void EditRowCivilite(CiviliteModel civilite)
+    {
+        CiviliteGrid.EditRow(civilite);
+    }
+
+
+    void OnUpdateRowCivilite(CiviliteModel civilite)
+    {
+        CiviliteService.Update(civilite);
+    }
+
+    void SaveRowCivilite(CiviliteModel civilite)
+    {
+        add = true;
+
+        if (Civilite.FirstOrDefault(x => x.LibelleCivilite == civilite.LibelleCivilite & x.IdCivilite != civilite.IdCivilite) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Civilite name already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            CiviliteGrid.UpdateRow(civilite);
+    }
+
+
+    void CancelEditCivilite(CiviliteModel civilite)
+    {
+        add = true;
+        CiviliteGrid.CancelEditRow(civilite);
+     
+    }
+
+    async void DeleteRowCivilite(CiviliteModel civilite)
+    {
+        ///*********************************Dialog Delete FK error************************************/
+        //  foreach (GouvernoratModel gouvernorat in Gouvernorat)
+        //  {
+        //      if (gouvernorat.IdCivilite == Civilite.IdCivilite)
+        //      {
+
+        //          await DialogService.OpenAsync<FK_DELETE_ERROR>("ERROR : DELETE  ' " + Civilite.LibelleCivilite + " '",
+        //               new Dictionary<string, object>() { },
+        //               new DialogOptions() { Width = "550px", Height = "210px" });
+        //          return;
+        //      }
+        //  }
+        SelectedCivilite = civilite;
+
+        await DialogService.Confirm($"Do you confirm deletion of {civilite.LibelleCivilite} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (Civilite.Contains(SelectedCivilite))
+            {
+                CiviliteService.Delete(SelectedCivilite.IdCivilite);
+                Civilite.Remove(SelectedCivilite);
+                countCivilite = Civilite.Count();
+                CiviliteGrid.Reload();
+                StateHasChanged();
+            }
+      else
+      {
+
+          if (SelectedCivilite.LibelleCivilite != null)
+              CiviliteGrid.CancelEditRow(SelectedCivilite);
+      }
+  }
+
+}
+
+ 
+
+
+}

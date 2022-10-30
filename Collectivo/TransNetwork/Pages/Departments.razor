@@ -1,0 +1,421 @@
+﻿@page "/departments"
+@using Radzen.Blazor
+@using TransNetwork.Models
+@using Radzen
+
+
+<RadzenCard Style="width: auto; margin-bottom: 5px; height: fit-content; background-color: white" >
+     <div class="row align-items-center " style="width:100%">
+        
+        <div class="col-md-12 d-flex align-items-center justify-content-center" >
+            <RadzenLabel Text="Country" Style="margin-right:10%" />
+            <RadzenDropDown @bind-Value="CountriesList.IdPays" Data="@Pays" Placeholder="Country" style="width: 100%;" TextProperty="LibellePays" ValueProperty="IdPays" Name="IdPays" Change=@(args => OnChangeCountry(args, "DropDown"))>
+            </RadzenDropDown>
+        </div>
+       
+    </div>
+</RadzenCard>
+
+<RadzenCard Style="width: auto; margin-bottom: 20px; height: fit-content; background-color: white" >
+    @if (Gouvernorat == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-3 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Departments (@Gouvernorat.Count)</h3>
+        </div>
+        <div class="col-md-3 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Style="border-radius: 5px; margin-bottom: 5px;" Click=@(args =>
+        AddDepartment()) />
+        </div>
+          <div class="col-md-6 d-flex align-items-end justify-content-start" >
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <RadzenGrid @ref="GouvernoratGrid"  AllowFiltering="true" AllowPaging="true" PageSize="12" AllowSorting="true" Data="@Gouvernorat" TItem="GouvernoratModel" SelectionMode="DataGridSelectionMode.Single" RowSelect="SelectDepartment" RowUpdate="@OnUpdateRowDepartment" RowCreate="@OnCreateRowDepartment" 
+            FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single"  style="height: 520px" >
+                <Columns>
+                    <RadzenGridColumn TItem="GouvernoratModel" Property="LibelleGouvernorat" Title="Department" >
+                        <EditTemplate Context="pays">
+                            <RadzenTextBox @bind-Value="pays.LibelleGouvernorat" Placeholder="Department" Style="width:100%; display: block" Name="LibelleGouvernorat" />
+                            <RadzenRequiredValidator Text="Department name is required" Component="LibelleGouvernorat" Popup="true" />
+                        </EditTemplate>
+                    </RadzenGridColumn>
+              
+                     <RadzenGridColumn TItem="GouvernoratModel" Context="pays" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                    <Template Context="pays">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowDepartment(pays))">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowDepartment(pays))>
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="pays">
+                        <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowDepartment(pays))">
+                        </RadzenButton>
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditDepartment(pays))">
+                        </RadzenButton>
+                    </EditTemplate>
+
+                </RadzenGridColumn>
+                </Columns>
+            </RadzenGrid>
+        </div>
+        <div class="col-md-6">
+            <RadzenCard Style="margin-bottom:20px">
+               <label>  Department:
+                <b>@SelectedGouvernorat.LibelleGouvernorat</b> </label>
+            </RadzenCard>
+           
+             @if (Delegation == null || SelectedGouvernorat == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+            <div class="row justify-content-center">
+            <div class="col-md-6 d-flex align-items-end justify-content-start" >
+                <h3 style="font-weight:bold">Delegations (@Delegation.Count)</h3>
+            </div>
+            <div class="col-md-6 d-flex align-items-end justify-content-end" >
+                <RadzenButton class="buttonStyle" Icon="add" ButtonStyle="ButtonStyle.Light" Style="border-radius: 5px; margin-bottom: 5px;"  Click=@(args =>
+            AddDelegation()) />
+            </div>
+        </div>
+
+                        <RadzenGrid @ref="DelegationGrid" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@Delegation" TItem="DelegationModel" RowUpdate="@OnUpdateRowDelegation" RowCreate="@OnCreateRowDelegation" 
+                            FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single">
+                            <Columns>
+                                <RadzenGridColumn TItem="DelegationModel" Property="LibelleDelegation" Title="Delegation" >
+                                      <EditTemplate Context="pays">
+                                        <RadzenTextBox @bind-Value="pays.LibelleDelegation" Placeholder="Delegation" Style="width:100%; display: block" Name="LibelleDelegation" />
+                                        <RadzenRequiredValidator Text="Delegation name is required" Component="LibelleDelegation" Popup="true" />
+                                    </EditTemplate>
+                                 </RadzenGridColumn>
+                                 <RadzenGridColumn TItem="DelegationModel" Context="pays" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                                <Template Context="pays">
+                                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditRowDelegation(pays))">
+                                    </RadzenButton>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteRowDelegation(pays))>
+                                    </RadzenButton>
+                                </Template>
+                                <EditTemplate Context="pays">
+                                    <RadzenButton Icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Success" Click="@((args) => SaveRowDelegation(pays))">
+                                    </RadzenButton>
+                                    <RadzenButton Icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@((args) => CancelEditDelegation(pays))">
+                                    </RadzenButton>
+                                </EditTemplate>
+
+                            </RadzenGridColumn>
+                            </Columns>
+                        </RadzenGrid>
+                    }
+        </div>
+    </div>
+}
+</RadzenCard>
+
+@code {
+
+    public PaysModel CountriesList { get; set; } = new PaysModel();
+    IList<PaysModel> Pays;
+
+    int countGouvernorat = 0;
+    RadzenGrid<GouvernoratModel> GouvernoratGrid;
+    IList<GouvernoratModel> Gouvernorat;
+    bool addGouvernorat = true;
+    bool DepartmentDeleted = false;
+
+    int countDelegation = 0;
+    RadzenGrid<DelegationModel> DelegationGrid;
+    IList<DelegationModel> Delegation;
+    bool addDelegation = true;
+    bool DelegationDeleted = false;
+
+    GouvernoratModel SelectedGouvernorat = new GouvernoratModel();
+    DelegationModel SelectedDelegation = new DelegationModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        Pays = await PaysService.ListAll("", "LibellePays", "");
+
+
+
+        if (Pays.Count() == 1)
+        {
+            CountriesList.IdPays = Pays[0].IdPays;
+
+            Gouvernorat = await GouvernoratService.ListAll("IdPays = " + CountriesList.IdPays, "LibelleGouvernorat", "");
+            if (Gouvernorat.Count() > 0)
+            {
+                SelectedGouvernorat = Gouvernorat.FirstOrDefault();
+
+                Delegation = await DelegationService.ListAll("IdGouvernorat = " + Gouvernorat[0].IdGouvernorat, "LibelleDelegation", "");
+
+            }
+
+        }
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    async void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            if (DepartmentDeleted)
+            {
+                if (Gouvernorat.Contains(SelectedGouvernorat))
+                {
+                    foreach(DelegationModel delegation in Delegation)
+                    {
+                        if(delegation.IdGouvernorat == SelectedGouvernorat.IdGouvernorat)
+                        {
+                            DelegationService.Delete(delegation.IdDelegation);
+                        }
+                    }
+
+                    GouvernoratService.Delete(SelectedGouvernorat.IdGouvernorat);
+                    Gouvernorat.Remove(SelectedGouvernorat);
+                    GouvernoratGrid.Reload();
+
+                    Gouvernorat = await GouvernoratService.ListAll("IdPays = " + CountriesList.IdPays, "LibelleGouvernorat", "");
+                    if (Gouvernorat.Count() > 0)
+                    {
+                        SelectedGouvernorat = Gouvernorat.FirstOrDefault();
+
+                        Delegation = await DelegationService.ListAll("IdGouvernorat = " + Gouvernorat[0].IdGouvernorat, "LibelleDelegation", "");
+
+                    }
+                    StateHasChanged();
+                }
+                else
+                {
+                    GouvernoratGrid.CancelEditRow(SelectedGouvernorat);
+                }
+                DepartmentDeleted = false;
+            }
+
+            if (DelegationDeleted)
+            {
+                if (Delegation.Contains(SelectedDelegation))
+                {
+                    DelegationService.Delete(SelectedDelegation.IdDelegation);
+                    Delegation.Remove(SelectedDelegation);
+                    DelegationGrid.Reload();
+                }
+                else
+                {
+                    DelegationGrid.CancelEditRow(SelectedDelegation);
+                }
+
+                Delegation = await DelegationService.ListAll("IdGouvernorat = " + SelectedDelegation.IdGouvernorat, "LibelleDelegation", "");
+
+                 StateHasChanged();
+                DelegationDeleted = false;
+            }
+
+
+
+        }
+    }
+
+    async void OnChangeCountry(object value, string name)
+    {
+        if (value == null)
+        {
+            return;
+        }
+        else
+        {
+            CountriesList.IdPays = Pays[0].IdPays;
+
+            Gouvernorat = await GouvernoratService.ListAll("IdPays = " + int.Parse(value.ToString()), "LibelleGouvernorat", "");
+            if (Gouvernorat.Count() > 0)
+            {
+                SelectedGouvernorat = Gouvernorat[0];
+                Delegation = await DelegationService.ListAll("IdGouvernorat = " + Gouvernorat[0].IdGouvernorat, "LibelleDelegation", "");
+
+            }  
+        }
+    }
+
+    async void SelectDepartment(GouvernoratModel gouvernorat)
+    {
+        SelectedGouvernorat = gouvernorat;
+        Delegation = await DelegationService.ListAll("IdGouvernorat = " + gouvernorat.IdGouvernorat, "LibelleDelegation", "");
+    }
+
+    void AddDepartment()
+    {
+        if (!addGouvernorat)
+        {
+            return;
+        }
+        addGouvernorat = false;
+        if (countGouvernorat == 0)
+        {
+            countGouvernorat = 1;
+        }
+        GouvernoratGrid.InsertRow(new GouvernoratModel());
+    }
+
+    protected async void OnCreateRowDepartment(GouvernoratModel gouvernorat)
+    {
+        gouvernorat.IdPays = CountriesList.IdPays;
+        int GouvernoratId = GouvernoratService.Create(gouvernorat).Result;
+        gouvernorat.IdGouvernorat = GouvernoratId;
+        Gouvernorat.Append(gouvernorat);
+
+        Gouvernorat = await GouvernoratService.ListAll("IdPays = " + CountriesList.IdPays, "LibelleGouvernorat", "");
+        StateHasChanged();
+    }
+
+    void EditRowDepartment(GouvernoratModel gouvernorat)
+    {
+        GouvernoratGrid.EditRow(gouvernorat);
+    }
+
+
+    void OnUpdateRowDepartment(GouvernoratModel gouvernorat)
+    {
+        GouvernoratService.Update(gouvernorat);
+    }
+
+    void SaveRowDepartment(GouvernoratModel gouvernorat)
+    {
+        addGouvernorat = true;
+
+        if (Gouvernorat.FirstOrDefault(x => x.LibelleGouvernorat == gouvernorat.LibelleGouvernorat & x.IdGouvernorat != gouvernorat.IdGouvernorat) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Department name already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            GouvernoratGrid.UpdateRow(gouvernorat);
+    }
+
+
+    void CancelEditDepartment(GouvernoratModel gouvernorat)
+    {
+        addGouvernorat = true;
+        GouvernoratGrid.CancelEditRow(gouvernorat);
+        if (gouvernorat.LibelleGouvernorat != null)
+        {
+            Gouvernorat[Gouvernorat.IndexOf(gouvernorat)] = GouvernoratService.GetById(gouvernorat.IdGouvernorat).Result;
+        }
+        GouvernoratGrid.Reload();
+    }
+
+    async void DeleteRowDepartment(GouvernoratModel gouvernorat)
+    {
+        SelectedGouvernorat = gouvernorat;
+        DepartmentDeleted = true;
+        await DialogService.Confirm($"Do you confirm deletion of {gouvernorat.LibelleGouvernorat} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    void AddDelegation()
+    {
+        if (!addDelegation)
+        {
+            return;
+        }
+        addDelegation = false;
+        if (countDelegation == 0)
+        {
+            countDelegation = 1;
+        }
+        DelegationGrid.InsertRow(new DelegationModel());
+    }
+
+    protected async void OnCreateRowDelegation(DelegationModel delegation)
+    {
+        delegation.IdGouvernorat = SelectedGouvernorat.IdGouvernorat;
+        int DelegationId = DelegationService.Create(delegation).Result;
+        delegation.IdDelegation = DelegationId;
+        Delegation.Append(delegation);
+
+        Delegation = await DelegationService.ListAll("IdGouvernorat = " + delegation.IdGouvernorat, "LibelleDelegation", "");
+
+        StateHasChanged();
+    }
+
+    void EditRowDelegation(DelegationModel delegation)
+    {
+        DelegationGrid.EditRow(delegation);
+    }
+
+
+    void OnUpdateRowDelegation(DelegationModel delegation)
+    {
+        DelegationService.Update(delegation);
+    }
+
+    void SaveRowDelegation(DelegationModel delegation)
+    {
+        addDelegation = true;
+
+        if (Delegation.FirstOrDefault(x => x.LibelleDelegation == delegation.LibelleDelegation & x.IdDelegation != delegation.IdDelegation) != null)
+        {
+            DialogService.Open("Message", ds =>
+            @<div>
+                <p Style="margin-bottom: 1rem">Delegation name already exists !</p>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                    </div>
+                </div>
+        </div>
+    );
+        }
+        else
+            DelegationGrid.UpdateRow(delegation);
+    }
+
+
+    async void CancelEditDelegation(DelegationModel delegation)
+    {
+        addDelegation = true;
+        DelegationGrid.CancelEditRow(delegation);
+        if (delegation.LibelleDelegation != null)
+        {
+            //Delegation[Delegation.IndexOf(delegation)] = DelegationService.GetById(delegation.IdDelegation).Result;
+            Delegation = await DelegationService.ListAll("IdGouvernorat = " + SelectedGouvernorat.IdGouvernorat, "LibelleDelegation", "");
+
+        StateHasChanged();
+        }
+        DelegationGrid.Reload();
+    }
+
+    async void DeleteRowDelegation(DelegationModel delegation)
+    {
+        SelectedDelegation = delegation;
+        DelegationDeleted = true;
+        await DialogService.Confirm($"Do you confirm deletion of {delegation.LibelleDelegation} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+
+
+}

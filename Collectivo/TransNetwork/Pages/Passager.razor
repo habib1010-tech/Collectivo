@@ -1,0 +1,125 @@
+﻿@page "/passager"
+
+
+@if (Passagers == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Passengers (@Passagers.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddPassager()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="PassagerGrid" Count="@countPassager" Data="@Passagers" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="PassagerModel" ColumnWidth="100px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="PassagerModel" Property="IdPassager" Title="Passager Id" Visible="false">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="PassagerModel" Property="CodeReference" Title="Reference" Width="200px">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="PassagerModel" Property="NomPassager" Title="Fullname">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="PassagerModel" Property="Mobile" Title="Mobile" Width="120px">
+            </RadzenGridColumn>
+
+           
+
+            <RadzenGridColumn TItem="PassagerModel" Context="Passager" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                <Template Context="Passager">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditPassager(Passager))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeletePassager(Passager))>
+                    </RadzenButton>
+                </Template>
+             
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+
+@code {
+
+
+    int countPassager = 0;
+    RadzenGrid<PassagerModel> PassagerGrid;
+    IList<PassagerModel> Passagers;
+    public PassagerModel PassagerList { get; set; } = new PassagerModel();
+    PassagerModel SelectedPassager = new PassagerModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Passagers = await PassagerService.ListAll("", "CodeReference", "");
+        countPassager = Passagers.Count;
+
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            //if (Passagers.Contains(SelectedPassager))
+            //{
+            //    PassagerService.Delete(SelectedPassager.IdPassager);
+            //    Passagers.Remove(SelectedPassager);
+            //    countPassager = Passagers.Count();
+            //    PassagerGrid.Reload();
+            //    StateHasChanged();
+            //}
+            //else
+            //{
+
+            //    if (SelectedPassager.CodeReference != null)
+            //        PassagerGrid.CancelEditRow(SelectedPassager);
+            //}
+        }
+    }
+
+        async void AddPassager()
+        {
+            NavigationManager.NavigateTo("user_add");
+        }
+
+        async void EditPassager(PassagerModel Passager)
+        {
+            //await DialogService.OpenAsync<Passager_Edit>("Edit Passager :" + Passager.CodeReference,
+            //new Dictionary<string, object> { { "id", Passager.IdPassager } },
+            //new DialogOptions { Width = "700px", Height = "auto" });
+            
+            //Passager = await PassagerService.ListAll("", "CodeReference", "");
+            //StateHasChanged();
+        }
+
+    async void DeletePassager(PassagerModel Passager)
+    {
+        
+        SelectedPassager = Passager;
+
+        await DialogService.Confirm($"Do you confirm deletion of {Passager.NomPassager} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    
+    }

@@ -1,0 +1,119 @@
+﻿@page "/conducteur"
+
+@if (Conducteurs == null)
+{
+    <p><em>Loading...</em></p> 
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex align-items-end justify-content-start" >
+            <h3 style="font-weight:bold">Drivers (@Conducteurs.Count)</h3>
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end" >
+            <RadzenButton class="buttonStyle" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" Style="border-radius:10px;height:35px"  Text="Add" Click=@(args =>
+        AddConducteur()) />
+
+         
+        </div>
+    </div>
+
+    <RadzenGrid @ref="ConducteurGrid" Count="@countConducteur" Data="@Conducteurs" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="20" TItem="ConducteurModel" ColumnWidth="100px"
+                FilterMode="FilterMode.Advanced" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" EditMode="DataGridEditMode.Single" Style="margin-top: 20px">
+
+        <Columns>
+            <RadzenGridColumn TItem="ConducteurModel" Property="IdConducteur" Title="Conducteur Id" Visible="false">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="ConducteurModel" Property="CodeReference" Title="Reference" Width="200px">
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="ConducteurModel" Property="NomConducteur" Title="Fullname">
+            </RadzenGridColumn>
+
+             <RadzenGridColumn TItem="ConducteurModel" Property="Mobile" Title="Mobile" Width="120px">
+            </RadzenGridColumn>
+
+           
+
+            <RadzenGridColumn TItem="ConducteurModel" Context="Conducteur" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+
+                <Template Context="Conducteur">
+                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditConducteur(Conducteur))">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Click=@(args => DeleteConducteur(Conducteur))>
+                    </RadzenButton>
+                </Template>
+             
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+ }
+
+
+@code {
+
+
+    int countConducteur = 0;
+    RadzenGrid<ConducteurModel> ConducteurGrid;
+    IList<ConducteurModel> Conducteurs;
+    public ConducteurModel ConducteurList { get; set; } = new ConducteurModel();
+    ConducteurModel SelectedConducteur = new ConducteurModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        Conducteurs = await ConducteurService.ListAll("", "CodeReference", "");
+        countConducteur = Conducteurs.Count;
+
+
+        DialogService.OnOpen += OpenConfirmation;
+        DialogService.OnClose += CloseConfirmation;
+    }
+
+    void OpenConfirmation(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+    {
+
+    }
+
+    void CloseConfirmation(dynamic result)
+    {
+        if (result == true)
+        {
+            //if (Conducteurs.Contains(SelectedConducteur))
+            //{
+            //    ConducteurService.Delete(SelectedConducteur.IdConducteur);
+            //    Conducteurs.Remove(SelectedConducteur);
+            //    countConducteur = Conducteurs.Count();
+            //    ConducteurGrid.Reload();
+            //    StateHasChanged();
+            //}
+            //else
+            //{
+
+            //    if (SelectedConducteur.CodeReference != null)
+            //        ConducteurGrid.CancelEditRow(SelectedConducteur);
+            //}
+        }
+    }
+
+        async void AddConducteur()
+        {
+            NavigationManager.NavigateTo("user_add");
+        }
+
+        async void EditConducteur(ConducteurModel Conducteur)
+        {
+            NavigationManager.NavigateTo("activite/" + Conducteur.IdConducteur);
+        }
+
+    async void DeleteConducteur(ConducteurModel conducteur)
+    {
+        
+        SelectedConducteur = conducteur;
+
+        await DialogService.Confirm($"Do you confirm deletion of {conducteur.NomConducteur} ?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+    }
+
+    
+    }
